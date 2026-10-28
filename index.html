@@ -1,0 +1,3563 @@
+<!doctype html>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Support Macro Pad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --chassis-0:#0f0e0d;
+    --chassis-1:#1a1917;
+    --chassis-2:#232220;
+    --chassis-3:#2c2a27;
+    --bevel-hi:#3a3835;
+    --bevel-lo:#080706;
+    --screen-bg:#182430;
+    --screen-bg-2:#121c26;
+    --screen-grid:#22344588;
+    --screen-text:#dce8f2;
+    --screen-text-dim:#7c93a6;
+    --label-cream:#d8d2c4;
+    --label-dim:#8a857a;
+    --pad-idle-top:#3a3733;
+    --pad-idle-bot:#242220;
+    --pad-idle-border:#4a463f;
+    --pad-empty-top:#232220;
+    --pad-empty-bot:#171614;
+    --pad-empty-border:#35322c;
+    --pad-hot-core:#ffcf5c;
+    --pad-hot-mid:#ff8a3d;
+    --pad-hot-edge:#c23a1e;
+    --pad-copied:#5fd07c;
+    --pad-copied-dark:#1f6b3a;
+    --focus-ring:#ffb020;
+    --danger:#e2574c;
+    --font-display:'Oswald',sans-serif;
+    --font-body:'IBM Plex Sans',sans-serif;
+    --font-mono:'IBM Plex Mono',monospace;
+  }
+
+  *{box-sizing:border-box;}
+  [hidden]{display:none!important;}
+  body{
+    margin:0;
+    background:var(--chassis-0);
+    color:var(--label-cream);
+    font-family:var(--font-body);
+    min-height:100vh;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:32px 16px 56px;
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:0.001ms!important;transition-duration:0.001ms!important;}
+  }
+
+  .unit{
+    width:100%;
+    max-width:880px;
+    background:linear-gradient(155deg,var(--chassis-2),var(--chassis-1) 40%,var(--chassis-0));
+    border-radius:18px;
+    padding:22px 22px 26px;
+    box-shadow:
+      0 0 0 1px var(--bevel-lo),
+      inset 0 1px 0 var(--bevel-hi),
+      0 30px 60px -20px rgba(0,0,0,0.7);
+  }
+  @media (min-width:1180px){
+    .unit{zoom:1.3;}
+  }
+
+  /* ---- header strip ---- */
+  .top-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:16px;
+  }
+  .brand{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+  }
+  .brand .dot{
+    width:9px;height:9px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--pad-hot-core), var(--pad-hot-edge) 75%);
+    box-shadow:0 0 8px 1px rgba(255,138,61,0.65);
+  }
+  .brand h1{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:20px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    margin:0;
+    color:var(--label-cream);
+  }
+  .brand span.sub{
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--label-dim);
+    letter-spacing:0.04em;
+  }
+
+  .mode-toggle{
+    display:flex;
+    border-radius:8px;
+    background:var(--chassis-0);
+    box-shadow:inset 0 0 0 1px var(--bevel-lo), inset 0 2px 4px rgba(0,0,0,0.5);
+    padding:3px;
+    gap:2px;
+  }
+  .mode-toggle button{
+    font-family:var(--font-display);
+    font-size:11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    font-weight:500;
+    padding:7px 14px;
+    border:none;
+    border-radius:6px;
+    background:transparent;
+    color:var(--label-dim);
+    cursor:pointer;
+  }
+  .mode-toggle button.active{
+    background:linear-gradient(180deg,var(--chassis-3),var(--chassis-2));
+    color:var(--label-cream);
+    box-shadow:0 1px 0 var(--bevel-hi), 0 1px 4px rgba(0,0,0,0.5);
+  }
+  .mode-toggle button:focus-visible{outline:2px solid var(--focus-ring);outline-offset:1px;}
+
+  /* ---- dual screens ---- */
+  .screens{
+    display:grid;
+    grid-template-columns:1fr 1.7fr;
+    gap:10px;
+    margin-bottom:18px;
+  }
+  .screen{
+    background:linear-gradient(180deg,var(--screen-bg),var(--screen-bg-2));
+    border-radius:6px;
+    box-shadow:inset 0 0 0 1px #000, inset 0 2px 10px rgba(0,0,0,0.55), 0 1px 0 var(--bevel-hi);
+    padding:12px 14px;
+    min-height:118px;
+    position:relative;
+    overflow:hidden;
+  }
+  .screen::before{
+    content:"";
+    position:absolute; inset:0;
+    background:repeating-linear-gradient(180deg, transparent 0 3px, rgba(255,255,255,0.02) 3px 4px);
+    pointer-events:none;
+  }
+  .screen .eyebrow{
+    font-family:var(--font-mono);
+    font-size:10px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--screen-text-dim);
+    margin:0 0 6px;
+  }
+  .screen-left h2{
+    font-family:var(--font-display);
+    font-size:17px;
+    font-weight:500;
+    color:var(--screen-text);
+    margin:0 0 4px;
+    text-wrap:balance;
+  }
+  .screen-left .pad-no{
+    font-family:var(--font-mono);
+    font-size:26px;
+    color:var(--pad-hot-core);
+    text-shadow:0 0 10px rgba(255,140,60,0.4);
+  }
+  .screen-right{
+    display:flex;
+    flex-direction:column;
+  }
+  .screen-right .body-text{
+    font-family:var(--font-body);
+    font-size:13px;
+    line-height:1.5;
+    color:var(--screen-text);
+    white-space:pre-wrap;
+    overflow-y:auto;
+    max-height:130px;
+    flex:1;
+    padding-right:4px;
+  }
+  .screen-right .body-text::-webkit-scrollbar{width:6px;}
+  .screen-right .body-text::-webkit-scrollbar-thumb{background:#2f4257;border-radius:3px;}
+  .screen-right .body-text a{color:var(--pad-hot-core); text-decoration:underline;}
+  .screen-footer{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-top:8px;
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    color:var(--screen-text-dim);
+  }
+  .copy-flag{
+    color:var(--pad-copied);
+    font-weight:500;
+    opacity:0;
+    transition:opacity 120ms ease;
+  }
+  .copy-flag.show{opacity:1;}
+  .copy-flag.fail{color:var(--danger);}
+
+  /* ---- editor (edit mode) ---- */
+  .editor{display:flex; flex-direction:column; gap:8px; height:100%;}
+  .editor input, .editor textarea{
+    width:100%;
+    background:var(--chassis-0);
+    border:1px solid #2f4257;
+    border-radius:4px;
+    color:var(--screen-text);
+    font-family:var(--font-body);
+    font-size:12.5px;
+    padding:6px 8px;
+    resize:none;
+  }
+  .editor textarea{flex:1; min-height:64px; line-height:1.45;}
+  .editor input:focus-visible, .editor textarea:focus-visible{outline:2px solid var(--focus-ring); outline-offset:0;}
+  .editor-error{
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--danger);
+    letter-spacing:0.02em;
+  }
+  .editor-actions{display:flex; gap:8px; justify-content:flex-end;}
+  .editor-actions button{
+    font-family:var(--font-display);
+    font-size:10.5px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    padding:6px 12px;
+    border-radius:4px;
+    border:none;
+    cursor:pointer;
+  }
+  .btn-save{background:var(--pad-copied-dark); color:#d9ffe4;}
+  .btn-delete{background:#3a1f1c; color:#ffb3ab;}
+  .btn-cancel{background:var(--chassis-3); color:var(--label-dim);}
+
+  /* ---- pad grid ---- */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+    flex:1 1 auto;
+    min-width:0;
+  }
+  .pad{
+    aspect-ratio:1/0.82;
+    border-radius:8px;
+    border:none;
+    cursor:pointer;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-end;
+    padding:8px 9px 7px;
+    text-align:left;
+    font-family:var(--font-display);
+    background:linear-gradient(160deg,var(--pad-idle-top),var(--pad-idle-bot));
+    box-shadow:
+      inset 0 0 0 1px var(--pad-idle-border),
+      inset 0 2px 1px rgba(255,255,255,0.06),
+      0 3px 0 rgba(0,0,0,0.4);
+    transition:transform 70ms ease, box-shadow 120ms ease, background 200ms ease;
+  }
+  .pad:active{transform:translateY(2px) scale(0.98);}
+  .pad:focus-visible{outline:2px solid var(--focus-ring); outline-offset:2px;}
+
+  .pad .num{
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    color:var(--label-dim);
+    position:absolute;
+    top:7px; left:9px;
+  }
+  .pad .label{
+    font-size:12.5px;
+    font-weight:500;
+    letter-spacing:0.01em;
+    color:var(--label-cream);
+    line-height:1.15;
+    text-wrap:balance;
+  }
+
+  .pad.filled{
+    background:radial-gradient(120% 140% at 30% 20%, #4a3226 0%, var(--pad-idle-bot) 60%);
+  }
+  .pad.filled:hover, .pad.filled:focus-visible{
+    background:radial-gradient(120% 140% at 32% 25%, var(--pad-hot-core) 0%, var(--pad-hot-mid) 38%, var(--pad-hot-edge) 78%);
+    box-shadow:
+      inset 0 0 0 1px #ffcf8a,
+      0 0 22px 2px rgba(255,138,61,0.55),
+      0 3px 0 rgba(0,0,0,0.4);
+  }
+  .pad.filled:hover .num, .pad.filled:focus-visible .num{color:rgba(30,10,0,0.65);}
+  .pad.filled:hover .label, .pad.filled:focus-visible .label{color:#1c0d05;}
+
+  .pad.filled.copied{
+    background:radial-gradient(120% 140% at 30% 20%, var(--pad-copied) 0%, var(--pad-copied-dark) 70%);
+    box-shadow:inset 0 0 0 1px #a6ffc2, 0 0 22px 2px rgba(95,208,124,0.5);
+  }
+  .pad.filled.copied .num, .pad.filled.copied .label{color:#0a2214;}
+
+  .pad.empty{
+    background:linear-gradient(160deg,var(--pad-empty-top),var(--pad-empty-bot));
+    box-shadow:inset 0 0 0 1px var(--pad-empty-border), inset 0 2px 1px rgba(255,255,255,0.03);
+  }
+  .pad.empty .label{color:var(--label-dim); font-weight:400;}
+  .pad.empty .plus{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    font-family:var(--font-mono);
+    font-size:20px;
+    color:#4a463f;
+  }
+  .pad.empty:hover, .pad.empty:focus-visible{box-shadow:inset 0 0 0 1px var(--focus-ring);}
+
+  .pad.editing{box-shadow:inset 0 0 0 2px var(--focus-ring), 0 0 14px 1px rgba(255,176,32,0.4);}
+
+  .hint{
+    margin-top:16px;
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    color:var(--label-dim);
+    text-align:center;
+    letter-spacing:0.02em;
+  }
+
+  .storage-warning{
+    margin:0 0 14px;
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    color:var(--danger);
+    text-align:center;
+    letter-spacing:0.02em;
+  }
+
+  /* ---- pads row: bank switcher at bottom-left, pad grid on the right ---- */
+  .pads-row{
+    display:flex;
+    align-items:stretch;
+    gap:14px;
+  }
+  .bank-column{
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-end;
+    gap:8px;
+    width:150px;
+    flex:0 0 150px;
+  }
+  .bank-column .eyebrow{
+    font-family:var(--font-mono);
+    font-size:10px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--screen-text-dim);
+    margin:0;
+  }
+  .bank-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    grid-template-rows:repeat(2,1fr);
+    gap:5px;
+    width:100%;
+    flex:0 0 auto;
+  }
+  .bank-btn{
+    font-family:var(--font-display);
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:0.03em;
+    border:none;
+    border-radius:5px;
+    padding:8px 4px;
+    cursor:pointer;
+    background:linear-gradient(160deg,var(--pad-idle-top),var(--pad-idle-bot));
+    color:var(--label-dim);
+    box-shadow:inset 0 0 0 1px var(--pad-idle-border), inset 0 1px 1px rgba(255,255,255,0.05), 0 2px 0 rgba(0,0,0,0.35);
+    transition:box-shadow 120ms ease, background 150ms ease, color 150ms ease;
+  }
+  .bank-btn.has-content{
+    color:var(--btn-core, var(--label-cream));
+    box-shadow:inset 0 0 0 1px var(--btn-core, var(--pad-idle-border)), inset 0 1px 1px rgba(255,255,255,0.05), 0 2px 0 rgba(0,0,0,0.35);
+  }
+  .bank-btn.active{
+    background:radial-gradient(120% 170% at 30% 20%, var(--pad-hot-core), var(--pad-hot-edge) 80%);
+    color:#1c0d05;
+    box-shadow:inset 0 0 0 1px #ffcf8a, 0 0 14px 1px var(--btn-core, rgba(255,138,61,0.5));
+  }
+  .bank-btn:focus-visible{outline:2px solid var(--focus-ring); outline-offset:2px;}
+  .bank-name{
+    font-family:var(--font-display);
+    font-size:13px;
+    letter-spacing:0.02em;
+    color:var(--label-cream);
+    text-wrap:balance;
+  }
+  .bank-name .letter{
+    color:var(--pad-hot-core);
+    font-weight:600;
+  }
+
+  .side-fields{
+    display:flex;
+    flex-wrap:wrap;
+    gap:16px;
+  }
+  .player-field{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    margin-bottom:14px;
+  }
+  .player-field label{
+    font-family:var(--font-mono);
+    font-size:10px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--label-dim);
+  }
+  .player-field input{
+    background:var(--chassis-0);
+    border:1px solid var(--bevel-hi);
+    border-radius:4px;
+    color:var(--label-cream);
+    font-family:var(--font-body);
+    font-size:12.5px;
+    padding:5px 8px;
+    width:150px;
+  }
+  #socure-field input{width:220px;}
+  .player-field input:focus-visible{outline:2px solid var(--focus-ring); outline-offset:0;}
+
+  /* ---- MIDI panel (hardware bridge) ---- */
+  .midi-panel{
+    margin-top:14px;
+    padding-top:12px;
+    border-top:1px solid var(--bevel-lo);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .midi-panel button{
+    font-family:var(--font-display);
+    font-size:10.5px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    font-weight:500;
+    padding:6px 12px;
+    border-radius:5px;
+    border:none;
+    cursor:pointer;
+    background:linear-gradient(180deg,var(--chassis-3),var(--chassis-2));
+    color:var(--label-dim);
+    box-shadow:inset 0 0 0 1px var(--pad-idle-border);
+  }
+  .midi-panel button.active{
+    background:radial-gradient(120% 160% at 30% 20%, var(--pad-hot-core), var(--pad-hot-edge) 80%);
+    color:#1c0d05;
+    box-shadow:inset 0 0 0 1px #ffcf8a;
+  }
+  .midi-panel button:focus-visible{outline:2px solid var(--focus-ring); outline-offset:1px;}
+  .midi-status{
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    color:var(--label-dim);
+    flex:1 1 220px;
+  }
+  .pad.armed{
+    box-shadow:inset 0 0 0 2px var(--focus-ring), 0 0 16px 2px rgba(255,176,32,0.55) !important;
+  }
+  .bank-btn.armed{
+    box-shadow:inset 0 0 0 2px var(--focus-ring), 0 0 12px 1px rgba(255,176,32,0.5) !important;
+  }
+
+  /* ---- calculators ---- */
+  .calc-panel{display:flex; flex-direction:column; gap:14px;}
+  .calc-tabs{display:flex; gap:8px; flex-wrap:wrap;}
+  .calc-tabs button{
+    font-family:var(--font-display);
+    font-size:11px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    font-weight:500;
+    padding:7px 14px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    background:var(--chassis-0);
+    color:var(--label-dim);
+    box-shadow:inset 0 0 0 1px var(--pad-idle-border);
+  }
+  .calc-tabs button.active{
+    background:linear-gradient(180deg,var(--chassis-3),var(--chassis-2));
+    color:var(--label-cream);
+    box-shadow:0 1px 0 var(--bevel-hi), inset 0 0 0 1px var(--pad-hot-core);
+  }
+  .calc-card{
+    background:linear-gradient(180deg,var(--screen-bg),var(--screen-bg-2));
+    border-radius:8px;
+    padding:16px;
+    box-shadow:inset 0 0 0 1px #000, inset 0 1px 6px rgba(0,0,0,0.4);
+  }
+  .calc-card-title{
+    font-family:var(--font-display);
+    font-size:15px;
+    letter-spacing:0.02em;
+    color:var(--screen-text);
+    margin:0 0 10px;
+  }
+  .calc-note{
+    font-family:var(--font-body);
+    font-size:12px;
+    line-height:1.5;
+    color:var(--screen-text-dim);
+    background:rgba(255,255,255,0.03);
+    border-radius:6px;
+    padding:10px 12px;
+    margin:0 0 12px;
+  }
+  .calc-note strong{color:var(--screen-text);}
+  .calc-button-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;}
+  .calc-pill{
+    font-family:var(--font-display);
+    font-size:11px;
+    letter-spacing:0.04em;
+    padding:6px 12px;
+    border:none;
+    border-radius:14px;
+    cursor:pointer;
+    background:var(--chassis-0);
+    color:var(--screen-text-dim);
+    box-shadow:inset 0 0 0 1px #2f4257;
+  }
+  .calc-pill.active{
+    background:linear-gradient(180deg,var(--pad-hot-mid),var(--pad-hot-edge));
+    color:#1c0d05;
+  }
+  .calc-tabs button:focus-visible, .calc-pill:focus-visible, .calc-status-btn:focus-visible, .calc-remove-btn:focus-visible{
+    outline:2px solid var(--focus-ring); outline-offset:1px;
+  }
+  .calc-field-row{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;}
+  .calc-field{flex:1; min-width:110px; display:flex; flex-direction:column; gap:4px;}
+  .calc-field label{
+    font-family:var(--font-mono);
+    font-size:10px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--screen-text-dim);
+  }
+  .calc-field input{
+    background:var(--chassis-0);
+    border:1px solid #2f4257;
+    border-radius:4px;
+    color:var(--screen-text);
+    font-family:var(--font-body);
+    font-size:13px;
+    padding:6px 8px;
+    width:100%;
+  }
+  .calc-field input:disabled{opacity:.55;}
+  .calc-field input:focus-visible{outline:2px solid var(--focus-ring); outline-offset:0;}
+  .calc-player-row{display:flex; gap:8px; align-items:center; margin-bottom:8px;}
+  .calc-player-row input{
+    background:var(--chassis-0);
+    border:1px solid #2f4257;
+    border-radius:4px;
+    color:var(--screen-text);
+    font-family:var(--font-body);
+    font-size:13px;
+    padding:6px 8px;
+  }
+  .calc-status-btn{
+    width:30px; height:30px; flex:0 0 auto;
+    border-radius:6px; border:none; cursor:pointer;
+    font-size:14px; font-weight:700;
+    background:var(--chassis-0); color:var(--pad-copied);
+    box-shadow:inset 0 0 0 1px #2f4257;
+  }
+  .calc-status-btn.lost{color:var(--danger);}
+  .calc-remove-btn{
+    width:26px; height:26px; flex:0 0 auto;
+    border-radius:6px; border:none; cursor:pointer;
+    background:var(--chassis-0); color:var(--label-dim);
+    box-shadow:inset 0 0 0 1px #2f4257;
+  }
+  .calc-results-grid{display:grid; grid-template-columns:1fr auto; gap:6px 12px; align-items:baseline;}
+  .calc-results-grid .name{font-family:var(--font-body); font-size:12.5px; color:var(--screen-text-dim);}
+  .calc-results-grid .value{font-family:var(--font-mono); font-size:13px; color:var(--screen-text); text-align:right; font-variant-numeric:tabular-nums;}
+  .calc-results-grid .value.bold{font-weight:600; font-size:15px;}
+  .calc-danger{background:rgba(226,87,76,0.12); border-radius:6px; padding:12px;}
+  .calc-danger .headline{font-family:var(--font-display); font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--danger); margin-bottom:4px;}
+  .calc-danger .amount{font-family:var(--font-mono); font-size:22px; color:var(--danger); font-weight:700;}
+
+  /* ---- search, opener/closer, pins ---- */
+  .search-row{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:12px;}
+  .search-wrap{position:relative; flex:1 1 260px; max-width:440px;}
+  #search-input{
+    width:100%;
+    background:var(--chassis-0);
+    border:1px solid var(--bevel-hi);
+    border-radius:6px;
+    color:var(--label-cream);
+    font-family:var(--font-body);
+    font-size:13px;
+    padding:7px 34px 7px 10px;
+  }
+  #search-input:focus-visible{outline:2px solid var(--focus-ring); outline-offset:0;}
+  .search-key{
+    position:absolute; right:9px; top:50%; transform:translateY(-50%);
+    font-family:var(--font-mono); font-size:11px; color:var(--label-dim);
+    border:1px solid var(--pad-idle-border); border-radius:4px; padding:0 5px; pointer-events:none;
+  }
+  .search-results{
+    position:absolute; z-index:20; left:0; right:0; top:calc(100% + 4px);
+    background:var(--chassis-2);
+    border:1px solid var(--bevel-hi);
+    border-radius:8px;
+    box-shadow:0 14px 30px -8px rgba(0,0,0,0.7);
+    padding:4px; max-height:340px; overflow-y:auto;
+  }
+  .search-label{font-family:var(--font-mono); font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--label-dim); padding:6px 8px 4px;}
+  .search-item{display:flex; gap:8px; align-items:baseline; padding:6px 8px; border-radius:6px; cursor:pointer;}
+  .search-item.selected, .search-item:hover{background:var(--chassis-3);}
+  .search-chip{
+    flex:0 0 auto; font-family:var(--font-display); font-size:11px; font-weight:600;
+    min-width:18px; text-align:center; border-radius:4px; padding:1px 4px;
+    color:#1c0d05; background:var(--chip-core, var(--pad-hot-core));
+  }
+  .search-title{font-family:var(--font-display); font-size:13px; color:var(--label-cream); flex:0 0 auto;}
+  .search-snippet{font-family:var(--font-body); font-size:11.5px; color:var(--label-dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;}
+  .search-empty{padding:8px; font-size:12px; color:var(--label-dim);}
+
+  .wrap-controls{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .wrap-btn, .wrap-seg button{
+    font-family:var(--font-display); font-size:11px; letter-spacing:0.05em; text-transform:uppercase;
+    padding:6px 11px; border:none; border-radius:5px; cursor:pointer;
+    background:var(--chassis-0); color:var(--label-dim);
+    box-shadow:inset 0 0 0 1px var(--pad-idle-border);
+  }
+  .wrap-btn[aria-pressed="true"], .wrap-seg button[aria-pressed="true"]{
+    background:linear-gradient(180deg,var(--chassis-3),var(--chassis-2));
+    color:var(--label-cream);
+    box-shadow:inset 0 0 0 1px var(--pad-hot-core);
+  }
+  .wrap-seg{display:flex; align-items:center; gap:4px;}
+  .wrap-wait{flex:0 0 100%; display:flex; align-items:center; gap:8px;}
+  .wait-opt{
+    font-family:var(--font-display); font-size:11px; letter-spacing:0.05em; text-transform:uppercase;
+    background:none; border:none; padding:2px 0; cursor:pointer; color:var(--label-dim);
+  }
+  .wait-opt[aria-pressed="true"]{color:var(--label-cream);}
+  .wait-switch{
+    position:relative; flex:0 0 auto; width:38px; height:20px; padding:0; border:none; border-radius:10px; cursor:pointer;
+    background:var(--chassis-0); box-shadow:inset 0 0 0 1px var(--pad-idle-border);
+  }
+  .wait-knob{
+    position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%;
+    background:var(--label-dim); transition:transform .15s ease, background .15s ease;
+  }
+  .wait-switch[aria-checked="true"]{box-shadow:inset 0 0 0 1px var(--pad-hot-core);}
+  .wait-switch[aria-checked="true"] .wait-knob{transform:translateX(18px); background:var(--pad-hot-core);}
+  .wait-switch:focus-visible, .wait-opt:focus-visible{outline:2px solid var(--focus-ring); outline-offset:2px;}
+  @media (prefers-reduced-motion:reduce){ .wait-knob{transition:none;} }
+  .wrap-label, .pins-label, .tools-label{
+    font-family:var(--font-mono); font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--label-dim);
+  }
+  .wrap-label{margin-right:2px;}
+  .wrap-btn:focus-visible, .wrap-seg button:focus-visible{outline:2px solid var(--focus-ring); outline-offset:1px;}
+
+  .pins-row{display:flex; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap;}
+  .pins-chips{display:flex; gap:6px; flex-wrap:wrap;}
+  .pin-chip{
+    display:inline-flex; align-items:center; background:var(--chassis-0); border-radius:14px;
+    box-shadow:inset 0 0 0 1px var(--chip-core, var(--pad-idle-border));
+  }
+  .pin-chip .pin-go{
+    border:none; background:none; cursor:pointer; color:var(--label-cream);
+    font-family:var(--font-display); font-size:12px; padding:5px 4px 5px 10px;
+    display:inline-flex; gap:6px; align-items:center;
+  }
+  .pin-chip .pin-bank{color:var(--chip-core, var(--pad-hot-core)); font-weight:600;}
+  .pin-chip .pin-x{border:none; background:none; cursor:pointer; color:var(--label-dim); font-size:14px; line-height:1; padding:2px 8px 2px 4px;}
+  .pin-chip button:focus-visible{outline:2px solid var(--focus-ring); outline-offset:1px; border-radius:10px;}
+  .pin-btn{
+    font-family:var(--font-display); font-size:10.5px; letter-spacing:0.05em; text-transform:uppercase;
+    border:none; border-radius:4px; padding:3px 9px; cursor:pointer;
+    background:var(--chassis-0); color:var(--screen-text-dim); box-shadow:inset 0 0 0 1px #2f4257;
+  }
+  .pin-btn[aria-pressed="true"]{color:var(--pad-hot-core); box-shadow:inset 0 0 0 1px var(--pad-hot-core);}
+  .pin-btn:focus-visible{outline:2px solid var(--focus-ring); outline-offset:1px;}
+  .copy-flag.stale{color:var(--pad-hot-core);}
+
+  /* ---- toast, data tools, dialog ---- */
+  .toast{
+    margin:10px 0 0; text-align:center;
+    font-family:var(--font-mono); font-size:11px; color:var(--label-cream);
+    position:sticky; bottom:12px; z-index:30;
+    background:var(--chassis-2); border-radius:8px; padding:9px 14px;
+    box-shadow:0 0 0 1px var(--bevel-hi), 0 10px 24px -6px rgba(0,0,0,0.75);
+  }
+  .toast button{
+    margin-left:10px; font-family:var(--font-display); font-size:10.5px; letter-spacing:0.06em; text-transform:uppercase;
+    border:none; border-radius:4px; padding:3px 10px; cursor:pointer;
+    background:var(--chassis-3); color:var(--pad-hot-core); box-shadow:inset 0 0 0 1px var(--pad-hot-core);
+  }
+  .tools-panel{
+    margin-top:14px; padding-top:12px; border-top:1px solid var(--bevel-lo);
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  }
+  .tools-panel button, .tools-dialog button{
+    font-family:var(--font-display); font-size:10.5px; letter-spacing:0.06em; text-transform:uppercase; font-weight:500;
+    padding:6px 12px; border-radius:5px; border:none; cursor:pointer;
+    background:linear-gradient(180deg,var(--chassis-3),var(--chassis-2)); color:var(--label-dim);
+    box-shadow:inset 0 0 0 1px var(--pad-idle-border);
+  }
+  .tools-panel button:focus-visible, .tools-dialog button:focus-visible{outline:2px solid var(--focus-ring); outline-offset:1px;}
+  .tools-dialog{
+    margin-top:10px; padding:14px; border-radius:8px;
+    background:linear-gradient(180deg,var(--screen-bg),var(--screen-bg-2));
+    box-shadow:inset 0 0 0 1px #000;
+    display:flex; flex-direction:column; gap:10px;
+  }
+  .tools-dialog h3{margin:0; font-family:var(--font-display); font-size:15px; font-weight:500; color:var(--screen-text);}
+  .tools-dialog p{margin:0; font-family:var(--font-body); font-size:12px; line-height:1.5; color:var(--screen-text-dim);}
+  .tools-dialog textarea, .tools-dialog input[type="text"]{
+    width:100%; background:var(--chassis-0); border:1px solid #2f4257; border-radius:4px;
+    color:var(--screen-text); font-family:var(--font-mono); font-size:11px; padding:8px; resize:vertical;
+  }
+  .tools-dialog textarea{min-height:120px;}
+  .tools-dialog textarea:focus-visible, .tools-dialog input:focus-visible{outline:2px solid var(--focus-ring); outline-offset:0;}
+  .dialog-actions{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;}
+  .dialog-msg{font-family:var(--font-mono); font-size:11px; color:var(--screen-text);}
+  .dialog-msg.err{color:var(--danger);}
+  .usage-row{display:flex; align-items:baseline; gap:8px; font-family:var(--font-body); font-size:12px; color:var(--screen-text);}
+  .usage-rank{flex:0 0 22px; font-family:var(--font-mono); font-size:10px; color:var(--screen-text-dim);}
+  .usage-ref{flex:0 0 38px; font-family:var(--font-mono); font-size:11px; color:var(--pad-hot-core);}
+  .usage-name{flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .usage-count{flex:0 0 auto; font-family:var(--font-mono); font-size:11px;}
+  .usage-last{flex:0 0 78px; text-align:right; font-family:var(--font-mono); font-size:10px; color:var(--screen-text-dim);}
+  .usage-note{font-family:var(--font-body); font-size:11px; line-height:1.4; color:var(--screen-text-dim); max-height:84px; overflow-y:auto;}
+  .dialog-list{display:flex; flex-direction:column; gap:4px; max-height:220px; overflow-y:auto;}
+  .dialog-list button{text-align:left; text-transform:none; letter-spacing:0; font-family:var(--font-body); font-size:12px; color:var(--screen-text);}
+
+  /* ---- fill-in form, send-to row, drag reorder ---- */
+  .fill-form{display:flex; flex-direction:column; gap:6px; max-height:260px; overflow-y:auto; padding-right:4px;}
+  .fill-row{display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-family:var(--font-body); font-size:12px; color:var(--screen-text-dim);}
+  .fill-row input, .fill-row select{
+    background:var(--chassis-0); border:1px solid #2f4257; border-radius:4px; color:var(--screen-text);
+    font-family:var(--font-mono); font-size:12.5px; padding:4px 8px; width:110px;
+  }
+  .fill-row select{width:auto; min-width:110px;}
+  .fill-row input:focus-visible, .fill-row select:focus-visible{outline:2px solid var(--focus-ring); outline-offset:0;}
+  .fill-preview{
+    font-family:var(--font-body); font-size:11.5px; line-height:1.45; color:var(--screen-text-dim);
+    white-space:pre-wrap; max-height:84px; overflow-y:auto; padding:6px 8px;
+    background:rgba(255,255,255,0.03); border-radius:4px;
+  }
+  .fill-actions{display:flex; gap:8px; justify-content:flex-end; margin-top:8px;}
+  .fill-actions button{
+    font-family:var(--font-display); font-size:10.5px; letter-spacing:0.06em; text-transform:uppercase;
+    padding:6px 12px; border-radius:4px; border:none; cursor:pointer;
+  }
+  .send-row{display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-family:var(--font-mono); font-size:10.5px; color:var(--screen-text-dim);}
+  .send-row select{background:var(--chassis-0); border:1px solid #2f4257; border-radius:4px; color:var(--screen-text); font-family:var(--font-body); font-size:12px; padding:3px 6px;}
+  .send-row button{
+    font-family:var(--font-display); font-size:10.5px; letter-spacing:0.06em; text-transform:uppercase;
+    padding:4px 10px; border-radius:4px; border:none; cursor:pointer; background:var(--chassis-3); color:var(--screen-text-dim);
+  }
+  .editor-error.warn{color:var(--pad-hot-core);}
+  .pad.dragging{opacity:.45;}
+  .pad.drop-target{box-shadow:inset 0 0 0 2px var(--focus-ring) !important;}
+</style>
+
+<div class="unit">
+  <div class="top-row">
+    <div class="brand">
+      <span class="dot"></span>
+      <h1>Macro Pad</h1>
+      <span class="sub">SUPPORT · 4×4</span>
+    </div>
+    <div class="mode-toggle" role="group" aria-label="Pad mode">
+      <button id="mode-play" class="active" type="button" aria-pressed="true">Play</button>
+      <button id="mode-edit" type="button" aria-pressed="false">Edit</button>
+      <button id="mode-calc" type="button" aria-pressed="false">Calc</button>
+    </div>
+  </div>
+
+  <p class="storage-warning" id="storage-warning" hidden>Local storage is blocked here, edits, MIDI mappings, and field values will not be saved between reloads.</p>
+
+  <div class="search-row" id="search-row">
+    <div class="search-wrap">
+      <input type="search" id="search-input" placeholder="Search all macros" aria-label="Search all macros" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="false" aria-controls="search-results" aria-autocomplete="list">
+      <span class="search-key" aria-hidden="true">/</span>
+      <div class="search-results" id="search-results" role="listbox" hidden></div>
+    </div>
+    <div class="wrap-controls" id="wrap-controls">
+      <div class="wrap-wait" role="group" aria-label="Opener wait time">
+        <span class="wrap-label">Wait</span>
+        <button type="button" class="wait-opt" data-wait="standard" aria-pressed="true" title="Use the standard opener">Standard</button>
+        <button type="button" class="wait-switch" id="wait-switch" role="switch" aria-checked="false" aria-label="Long wait opener" title="Switch between the standard and long-wait opener"><span class="wait-knob"></span></button>
+        <button type="button" class="wait-opt" data-wait="long" aria-pressed="false" title="Use the long-wait opener (thanks for hanging in there)">Long wait</button>
+      </div>
+      <button type="button" class="wrap-btn" id="wrap-opener" aria-pressed="false" title="Adds your Chase opener to macros that do not already start with a greeting">Opener</button>
+      <div class="wrap-seg" role="group" aria-label="Closer">
+        <span class="wrap-label">Closer</span>
+        <button type="button" data-closer="none" aria-pressed="true">None</button>
+        <button type="button" data-closer="standard" aria-pressed="false">Standard</button>
+        <button type="button" data-closer="bad" aria-pressed="false">Bad news</button>
+      </div>
+    </div>
+  </div>
+  <div class="pins-row" id="pins-row" hidden>
+    <span class="pins-label">Pinned</span>
+    <div class="pins-chips" id="pins-chips"></div>
+  </div>
+
+  <div class="screens">
+    <div class="screen screen-left">
+      <p class="eyebrow" id="screen-eyebrow">Pad</p>
+      <div class="pad-no" id="screen-num">–</div>
+      <h2 id="screen-title">Click a pad to load it</h2>
+    </div>
+    <div class="screen screen-right" id="screen-right">
+      <p class="eyebrow">Macro text</p>
+      <div class="body-text" id="screen-body">Every lit pad copies its full response to your clipboard in one click. Paste straight into the ticket. Switch to Edit to add or change macros.</div>
+      <div class="screen-footer">
+        <span id="screen-count"></span>
+        <span class="copy-flag" id="copy-flag" aria-live="polite">COPIED ✓</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="side-fields">
+    <div class="player-field" id="player-field" hidden>
+      <label for="player-input">Player</label>
+      <input type="text" id="player-input" placeholder="e.g. Jalen Williams" maxlength="40">
+    </div>
+    <div class="player-field" id="socure-field" hidden>
+      <label for="socure-input">Socure Link</label>
+      <input type="text" id="socure-input" placeholder="https://verify.socure.com/..." maxlength="200">
+    </div>
+  </div>
+
+  <div class="pads-row">
+    <div class="bank-column">
+      <p class="eyebrow">Bank</p>
+      <span class="bank-name" id="bank-name"></span>
+      <div class="bank-grid" id="bank-grid" role="group" aria-label="Macro bank"></div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+  <p class="hint" id="hint">Play mode · click a pad to copy its macro</p>
+  <p class="toast" id="toast" role="status" aria-live="polite" hidden><span id="toast-msg"></span><button type="button" id="toast-undo" hidden>Undo</button></p>
+
+  <div class="tools-panel" id="tools-panel">
+    <span class="tools-label">Data</span>
+    <button type="button" id="tool-export">Export</button>
+    <button type="button" id="tool-import">Import</button>
+    <button type="button" id="tool-restore">Restore bank</button>
+    <button type="button" id="tool-voice">Voice check</button>
+    <button type="button" id="tool-usage">Usage</button>
+  </div>
+  <div class="tools-dialog" id="tools-dialog" role="dialog" aria-labelledby="tools-dialog-title" hidden></div>
+
+  <div class="calc-panel" id="calc-panel" hidden>
+    <div class="calc-tabs" role="tablist" aria-label="Calculator">
+      <button class="active" id="calc-tab-flex" type="button" role="tab" aria-selected="true">Flex calculator</button>
+      <button id="calc-tab-fp" type="button" role="tab" aria-selected="false">Fantasy points</button>
+    </div>
+    <div id="calc-flex" role="tabpanel"></div>
+    <div id="calc-fp" role="tabpanel" hidden></div>
+  </div>
+
+  <div class="midi-panel" id="midi-panel" hidden>
+    <button id="midi-connect" type="button">Connect Maschine</button>
+    <button id="midi-learn" type="button" aria-pressed="false">Learn</button>
+    <button id="midi-clear" type="button">Clear mappings</button>
+    <span class="midi-status" id="midi-status" aria-live="polite">Not connected</span>
+  </div>
+</div>
+
+<script>
+(function(){
+  var STORAGE_KEY = 'macro-pad-banks-v2';
+  var OLD_STORAGE_KEY = 'macro-pad-v1';
+
+  var storageWarningEl = document.getElementById('storage-warning');
+  var storageWarned = false;
+  function noteStorageFailure(){
+    if(storageWarned) return;
+    storageWarned = true;
+    if(storageWarningEl) storageWarningEl.hidden = false;
+  }
+
+  var bankOrder = ['A','B','C','D','E','F','G','H'];
+  var bankColors = {
+    A: { core: '#ffcf5c', edge: '#c23a1e' },
+    B: { core: '#6fe3ff', edge: '#146a99' },
+    C: { core: '#8ce99a', edge: '#1f6b3a' },
+    D: { core: '#ff6b6b', edge: '#8a1a1a' },
+    E: { core: '#ff8fc7', edge: '#a8225f' },
+    F: { core: '#ffe066', edge: '#a9790a' },
+    G: { core: '#c9a6ff', edge: '#4d2f8a' },
+    H: { core: '#5fe3c9', edge: '#166b5a' }
+  };
+  var rootStyle = document.documentElement.style;
+
+  var PAYOUT_TABLE = {
+    2: { std: 3.5, f0: null, f1: null, f2: null },
+    3: { std: 6.5, f0: 3.25, f1: 1.09, f2: null },
+    4: { std: 12, f0: 7.2, f1: 1.8, f2: null },
+    5: { std: 20, f0: 10, f1: 2.5, f2: null },
+    6: { std: 35, f0: 25, f1: 2.6, f2: 0.25 },
+    7: { std: 65, f0: 40, f1: 2.75, f2: 0.5 },
+    8: { std: 120, f0: 80, f1: 3, f2: 1 }
+  };
+
+  var FP_TABLE = {
+    "NBA": [{ s: "Point", p: 1 }, { s: "Rebound", p: 1.2 }, { s: "Assist", p: 1.5 }, { s: "Steal", p: 3 }, { s: "Block", p: 3 }, { s: "Turnover", p: -1 }],
+    "MLB Batter": [{ s: "Single", p: 3 }, { s: "Double", p: 6 }, { s: "Triple", p: 8 }, { s: "Home Run", p: 10 }, { s: "Walk", p: 3 }, { s: "HBP", p: 3 }, { s: "RBI", p: 2 }, { s: "Run", p: 2 }, { s: "Stolen Base", p: 4 }],
+    "MLB Pitcher": [{ s: "Win", p: 5 }, { s: "Quality Start", p: 5 }, { s: "Strikeout", p: 3 }, { s: "Outs", p: 1 }, { s: "Earned Run", p: -3 }],
+    "Hockey Skater": [{ s: "Goal", p: 6 }, { s: "Assist", p: 4 }, { s: "PP Point", p: 0.5 }, { s: "Shot", p: 1 }, { s: "Block", p: 1 }, { s: "Hit", p: 0.5 }],
+    "Hockey Goalie": [{ s: "Win", p: 6 }, { s: "Save", p: 0.6 }, { s: "Goal Against", p: -3 }],
+    "LoL / Dota2": [{ s: "Kill", p: 3 }, { s: "Assist", p: 2 }, { s: "Death", p: -1 }, { s: "Creep Score", p: 0.02 }],
+    "UFC": [{ s: "Strikes", p: 0.2 }, { s: "Sig Strikes", p: 0.2 }, { s: "Control Time (sec)", p: 0.03 }, { s: "Take Down", p: 5 }, { s: "Reversal/Sweep", p: 5 }, { s: "1st Rd Win", p: 90 }, { s: "2nd Rd Win", p: 70 }, { s: "3rd Rd Win", p: 45 }, { s: "4th Rd Win", p: 40 }, { s: "5th Rd Win", p: 40 }, { s: "Decision Win", p: 30 }],
+    "NFL": [{ s: "Passing Yard", p: 0.04 }, { s: "Passing TD", p: 4 }, { s: "Interception", p: -1 }, { s: "Rushing Yard", p: 0.1 }, { s: "Rushing TD", p: 6 }, { s: "Reception", p: 0.5 }, { s: "Receiving Yard", p: 0.1 }, { s: "Receiving TD", p: 6 }, { s: "2-PT Conversion", p: 2 }, { s: "Fumble Lost", p: -2 }]
+  };
+  var bankNames = {
+    A: 'Intro / Outro',
+    B: 'Tickets',
+    C: 'Rescues',
+    D: 'Rescues: pushback',
+    E: 'Rapport',
+    F: 'Money & Tokens',
+    G: 'Entries & Contests',
+    H: 'Support Ops'
+  };
+
+  var defaultsByBank = {
+    A: {
+      1: { label: "Standard open", text: "Hi there! Thanks for reaching out to us. I'm Chase, and I'll take it from here and help you." },
+      2: { label: "Wait time", text: "Hi there! Thanks for reaching out to us, and thanks for hanging in there while we got to you. I'm Chase, and I'll be happy to take it from here and help you out." },
+      3: { label: "Handoff", text: "Hi there! Thanks for hanging in there while this got passed along. I'm Chase, and I'll be taking it from here to get you sorted out." },
+      4: { label: "Returning thread", text: "Hey, welcome back! I'm Chase, and I've got the history on this one, so let's pick up right where we left off." },
+      5: { label: "Problem open", text: "Hi there! Thanks for flagging this, I know it's not what you were expecting. I'm Chase, and I'll take it from here and get this sorted out for you." },
+      6: { label: "Casual/light", text: "Hey! Thanks for writing in. I'm Chase, happy to help out with this one." },
+      7: { label: "Quick/direct", text: "Hi, I'm Chase. Thanks for reaching out, let's get this taken care of for you." },
+      8: { label: "Busy night", text: "Hi there! Appreciate you sticking with us, it's a busy one tonight. I'm Chase, and I'll be happy to take it from here and help you out." },
+      9: { label: "Standard night", text: "That should do it, have a great night!" },
+      10: { label: "Anything else?", text: "Let me know if you have any other questions about your account." },
+      11: { label: "Win + payout", text: "That should do it. Congrats on the win, and keep an eye out for that payout! Have a great night." },
+      12: { label: "Win only", text: "That should do it. Congrats on the win, enjoy it! Have a great night." },
+      13: { label: "Payout only", text: "You're all set, keep an eye out for that payout. Have a great night!" },
+      14: { label: "Follow-up needed", text: "I'll keep working on this behind the scenes and follow up as soon as I have an update. Have a great night in the meantime!" },
+      15: { label: "Bad-news close", text: "Thanks for working through this with me. Have a great night, and reach back out anytime if anything else comes up." },
+      16: { label: "Big win close", text: "That's a huge win, congrats! Keep an eye out for that payout, and have an awesome week!" }
+    },
+    B: {
+      1: { label: "App reset steps", text: "Hey there, I can help with that! I want to get you back up and running as fast as possible. Most of the time, a quick reset clears this right up.\n\nHere's what I'd try, in order:\n1. Fully close the app (not just minimize, swipe it away) and reopen it\n2. Toggle airplane mode on and off, then try again\n3. Make sure any VPNs or proxy apps are turned off, these can interfere with location and connectivity\n4. Try switching between wifi and cellular to see if one works better\n5. If none of that does it, delete the app and reinstall it fresh from the App Store or Google Play\n\nOne of those should do the trick. Let me know which one works or if you're still stuck after trying them, and I'll dig deeper from here!" },
+      2: { label: "ID upload steps", text: "To get started, {{SOCURE_UPLOAD_LINK}}\n1. Front of your ID\n2. Back of your ID\n3. A selfie of you holding your ID next to your face\n\nThat third one trips almost everyone up. The upload screen just says \"photo,\" but we do need the selfie with your ID visible in the same shot. If it's missing, the upload gets rejected, and you'll need to redo it. Knock all three out the first time, and you're good. Let me know when you've uploaded and I'll review it." },
+      3: { label: "SSN last 4 verify", text: "To verify your identity and keep your account secure, could you confirm the last four digits of your Social Security number?" },
+      4: { label: "Withdrawal in review", text: "Hey, congrats on the win, first off. On the withdrawal, everything's moving as it should. Every withdrawal runs through a review before it is released; that's just to make sure funds land in the right place on the right account. Bigger withdrawals tend to sit in that step a little longer; that's normal. Nothing's flagged, nothing's wrong, and there's nothing on my end to speed it along. I know waiting on your money is the worst part of winning." },
+      5: { label: "Promo not available", text: "Hey, appreciate you reaching out and appreciate your loyalty to the platform. On the promo side, though, I can't add bonus entries or drop a promotion onto the account. The offers you see are based on your region, how you play, and which products you're in. Everyone gets promos; they just land differently from person to person. Keep an eye on your Promos tab." },
+      6: { label: "Combo entry explainer", text: "Think of a combo as two entries chained together, where the first one funds the second. Your Prediction selection won, but that money doesn't come to your wallet. It becomes part of the entry fee for your Fantasy selections.\n\nYou can see this in your transaction history under Account, then Transactions. Look for two lines with the same time and the same amount: a Prediction payout, which is the money coming in, and a Prediction entry rollover, which is that same money going straight into your Fantasy entry. They cancel each other out, so your balance doesn't change.\n\nBecause the Fantasy side didn't come in, there was nothing left to pay out to your wallet. The Prediction payout was already committed to the Fantasy entry when the Prediction side won. I know that's a hard result when the first half hits." },
+      7: { label: "Refund issued", text: "I issued {{art:refund}} {{amt:refund}} refund to the [card/PayPal account/bank account/Apple Pay card] you used for the deposit. The funds will be reflected in your account within 7-10 business days. While we can't expedite this process, it may be faster depending on your provider." },
+      8: { label: "Deposit/withdraw recap", text: "In {{YEAR}}, you have deposited {{amt:dep_year}} and withdrawn {{amt:wd_year}} for a net {{pl:pl_year}}. Since you created your account, you have deposited {{amt:dep_all}} and withdrawn {{amt:wd_all}} for a net {{pl:pl_all}}." },
+      9: { label: "Waiting on payout", text: "I get it. Waiting on a payout is the worst part, and I know you just want to see it land. Nothing is wrong with your entry, and you don't need to do anything. Settlements can sit for a bit when our stats provider hasn't finalized the official scoring yet, which can come down to a pending stat confirmation, a game status update, or technical issues on their side. As soon as they close it out, your entry settles automatically, and we're working to settle every entry as quickly as we can.\n\nThanks for hanging in there; I know waiting isn't fun." },
+      10: { label: "Cash-out unavailable", text: "I can clarify how cash-outs work. They're never guaranteed, and whether one is available depends on the market and a few other factors.\n\nA trade only goes through when there's someone on the other side of it. If you want to buy a contract, another party has to be selling to match your order, and the same is true in reverse. Right now there's no one on the other side of that trade, so it couldn't be executed.\n\nI understand this can be frustrating. However, unfortunately, I cannot manually override this on my end." },
+      11: { label: "Request entry ID", text: "Could you share your entry ID? Head to your entry section in the app. Find the entry you're inquiring about, long-press it, and copy the entry ID when the prompt appears on screen. Or feel free to share a screenshot of your entry. Thanks!" },
+      12: { label: "Play-through not met", text: "It looks like the playthrough requirements haven't been completed yet, so these funds aren't eligible for withdrawal.\n\nWe can still issue a refund if you'd prefer. However, since you've already used {{amt:bonus_used}} in bonus funds, we'd need to account for that in the refund.\n\nFrom the remaining balance of your initial {{amt:deposit}} deposit, we can refund {{netamt:deposit,bonus_used}}.\n\nIf you'd like to move forward with that refund, just let me know, and I can take care of it for you!\n\nLet me know if you have any other questions about your account." },
+      13: { label: "Bonus vs withdrawable split", text: "Congrats on the win! I can see why the payout breakdown might look confusing, and I'm happy to clear it up.\n\nYour entry used ___, so it paid out {{amt:bonus}} in bonus funds and {{amt:withdrawable}} in withdrawable cash.\n\nAny entry that uses a multiplier boost, discount, or special projection gets split between withdrawable cash and bonus cash. For example, if a Boost offer pays 50x for 5 picks but the standard return is 20x, the extra 30x is returned as bonus cash. You can check your transaction history for the full breakdown, and anything shown as withdrawable on your account page is yours to withdraw at any time.\n\nFor more details, head to the Multiplier Boosts/Specials section on our rules page." },
+      14: { label: "Device blocked (linked accounts)", text: "Our third-party location services automatically blocked the device because too many accounts are linked. Going forward, please use only devices that are not linked to other accounts on our platform. The device will remain blocked, and to use Apex Fantasy, you'll need to access your account from another device not linked to other Apex Fantasy accounts.\n\nUnfortunately, we can't lift any blocks imposed by our third-party location services.\n\nFor more information, please refer to our Terms of Use here:\nhttps://example.com/legal/terms-of-use\n\nFor AZ users, please refer to our Terms of Use here:\nhttps://example.com/legal/az-terms-of-use\n\nYour account is in good standing! To get back in, use a device that hasn't been linked to another Apex Fantasy account." }
+    },
+    C: {
+      1: { label: "Rescue: future", text: "Hi, I'm Chase. Here is how Rescue works. Once the game ends, {{PLAYER}} will grade as a loss, not a void. The entry will not convert into a win. What Rescue will do is refund your entry fee and add a Gimme token to your account, since {{PLAYER}} was the reason the entry would not pay out. Our Rescue policy has not changed, and this is how it has always worked. I cannot make exceptions to it.\nThe refund and Gimme will be applied once everything settles." },
+      2: { label: "Rescue: present", text: "Hi, I'm Chase. Here is how Rescue works. {{PLAYER}} is grading as a loss, not a void. The entry is not converting into a win. What Rescue is doing is refunding your entry fee and adding a Gimme token to your account, since {{PLAYER}} was the reason the entry would not pay out. Our Rescue policy has not changed, and this is how it has always worked. I cannot make exceptions to it.\nThe refund and Gimme are being added to your account." },
+      3: { label: "Rescue: past", text: "Hi, I'm Chase. Here is how Rescue works. {{PLAYER}} graded as a loss, not a void. The entry did not convert into a win. What Rescue did was refund your entry fee and add a Gimme token to your account, since {{PLAYER}} was the reason the entry would not pay out. Our Rescue policy has not changed, and this is how it has always worked. I cannot make exceptions to it.\nThe refund and Gimme are on your account." },
+      4: { label: "Non-rescue: future", text: "Hi, I'm Chase. Here is how the rule works. Any second-half action disqualifies a player from Rescue, even if it is just a few minutes. {{PLAYER}} is in the second half, so once the game ends, the projection will not qualify and will grade normally on the final stat line. Injuries are out of our control, and they happen every night across the league. The Rescue policy has not changed, and I cannot make exceptions on this.\nI know that is not what you wanted to hear. I am here if anything else comes up." },
+      5: { label: "Non-rescue: present", text: "Hi, I'm Chase. Here is how the rule works. Any second-half action disqualifies a player from Rescue, even if it is just a few minutes. {{PLAYER}} played in the second half, so the projection is not qualifying and is grading normally on the final stat line. Injuries are out of our control, and they happen every night across the league. The Rescue policy has not changed, and I cannot make exceptions on this.\nI know that is not what you wanted to hear. I am here if anything else comes up." },
+      6: { label: "Non-rescue: past", text: "Hi, I'm Chase. Here is how the rule works. Any second-half action disqualifies a player from Rescue, even if it is just a few minutes. {{PLAYER}} played in the second half, so the projection did not qualify and graded normally on the final stat line. Injuries are out of our control, and they happen every night across the league. The Rescue policy has not changed, and I cannot make exceptions on this.\nI know that is not what you wanted to hear. I am here if anything else comes up." },
+      7: { label: "Flex 3-5 refund", text: "Hi, I'm Chase. {{PLAYER}} was the tipping point on this Flex. Your entry had 1 other loss, and with the rescue, that pushed the entry past the threshold for a Flex 3/4/5 payout. The Rescue rule kicked in here, so the entry fee was refunded and a Gimme token was added to your account.\nI am here if anything else comes up." },
+      8: { label: "Flex 6-8 refund", text: "Hi, I'm Chase. {{PLAYER}} was the tipping point on this Flex. Your entry had 2 other losses, and with the rescue, that pushed the entry past the threshold for a Flex 6/7/8 payout. The Rescue rule kicked in here, so the entry fee was refunded and a Gimme token was added to your account.\nI am here if anything else comes up." },
+      9: { label: "Flex 3-5 no refund", text: "Hi, I'm Chase. {{PLAYER}} qualified for a Rescue on their projection, but they were not the tipping point here. On Flex 3/4/5, only 1 other loss is allowed for a payout. With 2 or more other losses on the entry, the entry was already past the loss threshold regardless of what happened with {{PLAYER}}. Rescue does not refund the entry fee in that case, because {{PLAYER}} was not the reason the entry would not pay out.\nI know that is not what you wanted to hear. I am here if anything else comes up." },
+      10: { label: "Flex 6-8 no refund", text: "Hi, I'm Chase. {{PLAYER}} qualified for a Rescue on their projection, but they were not the tipping point here. On Flex 6/7/8, only 2 other losses are allowed for a payout. With 3 or more other losses on the entry, the entry was already past the loss threshold regardless of what happened with {{PLAYER}}. Rescue does not refund the entry fee when {{PLAYER}} was not the reason the entry would not pay out.\nI am here if anything else comes up." },
+      11: { label: "Why not a void", text: "Hi, I'm Chase. Rescue is not a void. {{PLAYER}} is grading as a loss, and the entry is settling as a loss. What Rescue is doing is refunding your entry fee and adding a Gimme token to your account, since {{PLAYER}} was the tipping point. That is how the policy has always worked, and I am not able to change how the entry is grading.\nThe refund and Gimme are being added to your account. I am here if anything else comes up." },
+      12: { label: "Exception request", text: "Hi, I'm Chase. I hear you, and I understand you are frustrated. That is just the rule for every entry though, and I cannot step outside of it. {{PLAYER}} is grading as a loss, the entry is not paying out as a win, and what you are getting is the entry fee refund plus a Gimme token. That is the only remedy available on this entry.\nI will pass your feedback along." },
+      13: { label: "This isn't fair", text: "Hi, I'm Chase. I hear you, and I understand it feels that way. The Rescue rule works the same way for every entry on the platform, no exceptions. {{PLAYER}} is grading as a loss, and the remedy is the entry fee refund plus a Gimme token. That is what the rule provides, and it is being added to your account." },
+      14: { label: "5 min shouldn't count", text: "Hi, I'm Chase. It does count, and that is how the rule has always worked. Any in-game appearance after halftime disqualifies a player from Rescue, regardless of the minutes. {{PLAYER}} played in the second half, so the projection is grading normally on the final stat line. I get how it feels when the window is small, but the policy does not have a minimum threshold. I cannot make exceptions on the entry.\nI will pass your feedback along on our end. I am here if anything else comes up." },
+      15: { label: "Closer: final position", text: "I hear you, and I have given you the final answer on this. The Rescue policy has not changed and the entry result is final. I am here if anything else comes up on the account, but on this entry there is nothing more I can do." },
+      16: { label: "Closer: clean exit", text: "The entry result is final. I am here if anything else comes up on the account." }
+    },
+    D: {
+      1: { label: "Give me the win", text: "Hi, I'm Chase. I know that is not what you want to hear, and I appreciate you hanging in there with the wait today.\nRescue is not a win conversion. {{PLAYER}} is grading as a loss on the entry. What you are getting is a refund of your entry fee and a Gimme token added to your account, because {{PLAYER}} was the reason the entry would not pay out. Our policy on this has not changed, and I am unable to make exceptions to the entry result.\nThe refund and Gimme are being added to your account. I will pass the feedback along on our end." },
+      2: { label: "Thought entry was saved", text: "Hi, I'm Chase. Thanks for the patience today, I know waits have been rough.\nI get the confusion. Rescue does not save the entry as a win. {{PLAYER}} is grading as a loss, but because they were the reason the entry would not pay out, the rule is kicking in and refunding your entry fee plus adding a Gimme token to your account. The entry itself is not paying out, the entry fee is just coming back.\nThe refund and Gimme are being added to your account. I am here if anything else comes up." },
+      3: { label: "Refund isn't enough", text: "Hi, I'm Chase. Thanks for sticking it out through the wait, I know it has been a tough one today.\nI hear you. A refund plus a Gimme is what Rescue provides, and the policy has not changed. The entry is not paying out as a win, and I am not able to make exceptions on the result. What I can do is make sure your feedback is passed along on our end. The remedy here is the entry fee back plus the Gimme on your next pick.\nThe refund and Gimme are being added to your account. I am here if anything else." },
+      4: { label: "Want full payout", text: "Hi, I'm Chase. I know that is not the answer you wanted, and I appreciate you waiting through the queue today.\nThe full payout is not what Rescue provides. {{PLAYER}} is grading as a loss, the entry is not paying out as a win, and the remedy is a refund of your entry fee plus a Gimme token. The policy has not changed, and I cannot release the entry as a win. I will pass your feedback along, but the entry result is what it is.\nThe refund and Gimme are being added to your account. I am here if anything else comes up." },
+      5: { label: "Give me the supervisor", text: "Hi, I'm Chase. Thanks for waiting today, I know the queue has been heavy.\nI hear you. Escalating this will not change the outcome though, the rule works the same way for every customer. The refund plus Gimme is the remedy, and that is being added to your account. I will make sure your feedback gets to the team." },
+      6: { label: "Get me a real person", text: "Hi, I'm Chase. Thanks for hanging in there today, I know the wait has been brutal.\nI'm a real person, and I'm here to help. The one thing I can't change is the entry result. Rescue policy hasn't changed, and I can't make exceptions to it. {{PLAYER}} is grading as a loss, and the refund plus Gimme are being added to your account." },
+      7: { label: "Ticket was perfect otherwise", text: "Hi, I'm Chase. Thanks for hanging in there today, the wait has been long.\nI hear you, and that hurts. The Rescue rule is exactly why you are getting your entry fee back in this scenario. Without it, the entry just loses. {{PLAYER}} is grading as a loss, the entry is not paying out as a win, but because they were the tipping point, your entry fee is being refunded, and a Gimme is being added. That is being applied to your account." },
+      8: { label: "Lose over one player", text: "Hi, I'm Chase. Thanks for waiting today, I appreciate it.\nI hear you. The Rescue rule is the reason you get your entry fee back at all in this scenario. {{PLAYER}} grades as a loss, the entry does not pay out as a win, but because they were the tipping point, the rule kicks in and refunds the entry fee plus adds a Gimme. The policy applies the same way for every customer, and I cannot make exceptions on the entry result." },
+      9: { label: "Punished for injury", text: "Hi, I'm Chase. Thanks for waiting today, I appreciate it.\nI hear you, and I know injuries are frustrating. They are out of our control though, and they happen every night across the league. The Rescue rule is based on whether a player returns in the second half, not on why they leave. {{PLAYER}} played in the second half, so the projection is not qualifying for Rescue and is being graded on the final stat line. The policy has not changed, and I cannot make exceptions to this.\nI am here if anything else comes up." },
+      10: { label: "Played hurt is worse", text: "Hi, I'm Chase. Thanks for hanging in there with the wait today.\nI hear you. The Rescue rule does not factor in how a player looked or whether they were playing through something. The only thing it looks at is whether they appeared in the second half. {{PLAYER}} did, so the projection graded normally on the final stat line. Injuries are out of our control and they happen every night. The policy has not changed, and I cannot make exceptions here.\nI will pass your feedback along. I am here if anything else comes up." },
+      11: { label: "Should've been covered", text: "Hi, I'm Chase. Thanks for the patience today, I know waits have been long.\nI hear how it feels, but the Rescue rule is specifically built around no second-half action. {{PLAYER}} played in the second half, so the rule did not apply. The projection graded normally on the final stat line. Injuries happen every night, and they are out of our control. The policy has not changed and I cannot make exceptions here.\nI will pass your feedback along to the team. I am here if anything else." },
+      12: { label: "I did nothing wrong", text: "Hi, I'm Chase. Thanks for hanging in there today, the wait has been brutal.\nYou did not do anything wrong, and I get the frustration. Injuries are part of every sport though, and they are out of our control. They happen every night across the league. The Rescue rule is built around no second-half action, and {{PLAYER}} played in the second half. The projection graded normally on the final stat line." },
+      13: { label: "Every other leg won", text: "Hi, I'm Chase. Thanks for waiting today, I appreciate the patience.\nI get why that stings when everything else hit. The Rescue rule just does not look at the other legs though, only whether {{PLAYER}} returned in the second half. {{PLAYER}} did, so the projection did not qualify for Rescue and the entry graded as is. The policy applies the same way regardless of how the other picks finished." },
+      14: { label: "You guys are a joke", text: "Hi, I'm Chase. Thanks for waiting today, I appreciate it.\nI get the frustration, and I am not going to push back on how you feel. On the entry though, the result is final. Rescue policy has not changed, {{PLAYER}} played in the second half, and the projection graded on the final stat line." },
+      15: { label: "Closer: firmest exit", text: "I've given you the answer, the rule, and the remedy already. The entry result is final, and I'm not able to keep going back and forth on it. The refund and Gimme are on your account. I'm here for anything else." },
+      16: { label: "Closer: keeps arguing", text: "I hear you, and I've already walked through the rule and the result. {{PLAYER}} played in the second half, the projection graded normally, and the entry result is final. I can't make exceptions here. I'm here for anything else on the account." }
+    },
+    E: {
+      1: { label: "Nice pick", text: "Nice one. That's the kind of pick that makes the whole slate worth it." },
+      2: { label: "Clean card", text: "That entry was clean. You clearly know how to build a card." },
+      3: { label: "Brutal beat", text: "That's a brutal way for a game to end. Painful to watch." },
+      4: { label: "So close", text: "One stat line away from a very different night. That stings." },
+      5: { label: "Fantasy banter", text: "Rough week for your fantasy team, or are we just talking about mine?" },
+      6: { label: "Tonight's villain", text: "Every slate's got one villain. Tonight it was {{PLAYER}}, apparently." },
+      7: { label: "Got range", text: "You've got range on that lineup. Respect." },
+      8: { label: "Boom or bust", text: "That's the kind of lineup that either hits big or goes down swinging. No in-between." },
+      9: { label: "Loyal player", text: "You've been grinding on this platform for a while. That doesn't go unnoticed." },
+      10: { label: "Stuck around", text: "Appreciate you sticking around through the ups and downs of a season." },
+      11: { label: "Clean slate", text: "Next slate's a clean slate. Go get it." },
+      12: { label: "Rest of the card", text: "Hope the rest of your card comes through tonight." },
+      13: { label: "Did your homework", text: "You clearly did your homework on this one." },
+      14: { label: "Sharp read", text: "That's a sharp read on the matchup." },
+      15: { label: "Good chat", text: "We got there. Appreciate you working through it with me." },
+      16: { label: "Enjoy the slate", text: "Good chat. Go enjoy the rest of the slate." }
+    },
+    F: {
+      1: { label: "Name mismatch (card)", text: "Hey there! I took a look and your deposit isn't being accepted because the name on the card doesn't match the name on your Apex Fantasy account. For example, if your account is under \"Stephen John-Smith III,\" your card needs to show that exact name, not a variation like \"Steve Smith.\"\nI'd recommend trying PayPal or linking a bank account through Trustly instead, that tends to process more smoothly." },
+      2: { label: "Name mismatch (Apple Pay)", text: "Hey there! It looks like the name on your Apple Pay doesn't match the name on your Apex Fantasy account. Can you let me know exactly how your name appears in Apple Pay? That will help me figure out the best next step." },
+      3: { label: "Bank declined deposit", text: "I'm seeing that your card deposit attempts are being declined on your bank's side, Apex Fantasy doesn't block deposits from our end. I'd recommend trying again later, reaching out to your bank, or using PayPal or Trustly as alternatives in the meantime." },
+      4: { label: "Deposits on statement late", text: "I see a few $25 deposits from the last week on your account. It can take a few days for deposits to show up on a bank statement, which is likely why you're seeing them pop up now." },
+      5: { label: "Withdrawal via Trustly", text: "Good news, your withdrawal was processed on our end and authorized through Trustly. Since your bank doesn't support instant settlement, it may take 1 to 3 business days to actually land in your account." },
+      6: { label: "Trustly processor failure", text: "I looked into your withdrawal and I'm seeing a processor failure. That means Trustly, the processor you used, wasn't able to complete it on their end. You'll need to reach out to Trustly directly for more details, they can be reached here: https://us.trustly.com/help" },
+      7: { label: "Refund vs withdrawal", text: "Just to clarify, what you initiated was a refund, not a withdrawal. Refunds go through some extra security checks, so they tend to take a bit longer to land than a standard withdrawal." },
+      8: { label: "Card on file, need screenshot", text: "I'm showing that withdrawal was processed to the card you have on file. Could you check that card's transaction history for anything from Apex Fantasy and send me a screenshot of those transactions? That will help me confirm everything landed correctly." },
+      9: { label: "Return fee explanation", text: "That return fee was applied by your bank, not by Apex Fantasy. It looks like this was a retry payment, meaning your original deposit got returned by your bank after it was submitted, sometimes from insufficient funds, a stop payment, or a straight decline. We don't get details on the exact reason, so your bank will be able to explain the return and the fee." },
+      10: { label: "Withdrawal method limits", text: "A couple of things worth flagging on withdrawals: debit card withdrawals are temporarily unavailable, so PayPal is the way to go in the meantime. Prepaid cards aren't eligible at all, only Visa debit is supported directly. Also, for security, we need at least one successful deposit through a method before we can send a withdrawal back to it." },
+      11: { label: "Token returned on void", text: "Tokens are usually returned automatically when the entry they were used on voids. If yours isn't back by tomorrow, reach back out and I'll get you a makeup token." },
+      12: { label: "Gimme grades as win", text: "Good news, Gimme tokens are graded as a win regardless of whether the player ends up playing. You're covered on that one." },
+      13: { label: "How to use promo token", text: "Welcome! To use that promo token, attach it to your entry before you submit. Once you submit with the token attached, that bonus amount should show up as claimable in your lobby." },
+      14: { label: "Token bonus split", text: "Here's how the multiplier breaks down: a 2-pick entry pays 3x with half going to bonus funds, a 3-pick pays 6x with half to bonus, and a 4-pick pays 10x with 40% going to bonus." },
+      15: { label: "Boost = partial bonus cash", text: "Any entry with a multiplier boost, a discount, or a special projection that pays above the normal rate gets split on payout, part goes out as withdrawable cash and part as bonus cash." },
+      16: { label: "Deny bonus (gentle)", text: "I appreciate you reaching out, and I get wanting to make up for a tough break. I'm not able to add bonus entries or free plays to accounts on my end though. What I can do is submit a request for a makeup special to the team, no guarantees and no ETA, but it's in for your account. Keep an eye on the promos tab and our Discord for specials in the meantime." }
+    },
+    G: {
+      1: { label: "Up-to payout confusion", text: "I get why that payout amount looks off, it's confusing at first. The number shown is always an \"up to\" amount, your final payout depends on which specific picks hit or miss. On a Flex entry, each pick carries its own multiplier, and that multiplier only counts toward your payout if the pick is correct. Full details are in our rules under \"Modified Payouts\": https://example.com/rules/pick-em" },
+      2: { label: "Sub-1x modifiers", text: "A few of the selections in that entry carried sub-1x modifiers, meaning they actually pull your overall multiplier down rather than boost it. That is why the final payout landed lower than it looked at a glance." },
+      3: { label: "Not actually flexed", text: "Those entries weren't actually flexed, they were standard plays. On a standard play, any single loss means the whole entry loses. The quick way to tell the difference going forward: flex entries show a shield icon in the top right corner. No shield means it's a standard play." },
+      4: { label: "Flex multiplier math", text: "Here's how the math works out on a Flex entry. Take the base multiplier and multiply it by each correct pick's individual modifier. So if the base is 1.5x and the correct picks carried modifiers of .87, 1, and 1.05: 1.5 times .87 times 1 times 1.05 comes out to about 1.37x. On a $20 entry, that's $27.24 for that payout. Happy to walk through your specific entry the same way if you want the exact numbers." },
+      5: { label: "Draft canceled (integrity)", text: "I know it's frustrating to put time into a draft and then have it get canceled. I don't have visibility into the specifics on canceled drafts, but our integrity team reviews each one carefully before making that call." },
+      6: { label: "Draft canceled, not on you", text: "Drafts can get canceled for a bunch of reasons, and it may have been triggered by someone else in your lobby, not anything you did. If something you specifically did had violated our terms, our team would have reached out to you directly about it, so you're in the clear here." },
+      7: { label: "NY sports offered", text: "Right now in New York we only offer NBA, NFL, NHL, and MLB." },
+      8: { label: "Entry submitted as shown", text: "Taking a look on our end, this entry was submitted exactly as it's currently displayed. Once picks are submitted they lock in, and the review screen exists to give you one more chance to double check everything before that happens. If you have a screenshot showing your entry looking different before you submitted, send it over and I'll dig into it." },
+      9: { label: "Entry can't be changed", text: "I hear you, but our system genuinely isn't built to let anyone change an entry after it's been submitted, that would be a major integrity issue on our end. Once a Pick'em is locked in, those selections are final." },
+      10: { label: "Projection changed claim", text: "The projection on that entry is the one that was live at the moment you submitted. Projections can shift right up until lock, and the review screen shows the exact values before you confirm. What you're seeing now is what was locked in at submission. If you have a screenshot from before you submitted showing a different number, send it over and I'll look into it." },
+      11: { label: "Pick direction changed claim", text: "I checked, and the direction on each pick matches exactly what was submitted. Our system locks in selections at the time of submission, there's no mechanism that flips a pick from higher to lower or back after the fact. The review screen before confirmation shows every pick and direction clearly. If you have a screenshot showing something different, I'm happy to dig in." },
+      12: { label: "Ladder payout explained", text: "Happy to break down that payout! In Ladder contests, your payout is set by the lowest rung any of your picks achieved, not the highest. So if one selection didn't reach Rung 1, the whole entry pays out at Rung 1 even though your other picks climbed higher. Full breakdown of how Ladder payouts work is here: https://example.com/rules/ladders" },
+      13: { label: "Combo cash out", text: "Here's the key thing with cashing out the Prediction side of a combo, that money doesn't land in your wallet yet. It gets set aside to fund your Fantasy entry instead. Say you cash out for $8 before the game ends, that $8 becomes your Fantasy entry fee. If your Fantasy picks hit, your payout is based on that amount times your multiplier. \"Cash out\" sounds like locking in profit, but on a combo it just moves your winnings into the next leg." },
+      14: { label: "Settlement delay", text: "Hey, I'm aware there's a delay hitting some contest settlements right now, nothing you need to do on your end. I know it's frustrating to wait on this, so I've gone ahead and added some extra funds to your account in the meantime." },
+      15: { label: "Combo lost = $0", text: "Your Prediction side did win, but that payout went straight into funding your Fantasy entry rather than your wallet. When the Fantasy side lost, the combo returned $0 because the Prediction payout was already committed to that Fantasy leg. A combo only pays out when both sides hit." },
+      16: { label: "Combo breakdown template", text: "Here's what happened on your combo. You placed a $___ combo entry. $___ went to your Prediction pick and $___ was held for Fantasy. Your Prediction side [won/cashed out] for $___, minus $___ in fees, so $___ rolled over into Fantasy. Your total Fantasy entry fee came out to $___. The Fantasy side [won/lost], so your payout was $___." }
+    },
+    H: {
+      1: { label: "Won't void mid-game", text: "It won't void. Per our rules, all full-game In-Game Projections stay live even if a player doesn't end up playing after your submission, the pick just grades using their final stat line. Full details here: https://example.com/rules/pick-em" },
+      2: { label: "OT stats excluded (partial)", text: "Just a heads up on that one, NBA, WNBA, NHL, and soccer partial-game projections don't include stats from overtime or extra time. Everything else grades on the full game including OT." },
+      3: { label: "OT stats general rule", text: "Overtime stats do count toward most entries. The exceptions are playoff holes in golf, shootouts in hockey, and penalty kick shootouts in soccer, none of those count. Also worth knowing, a projection for a specific period like 1Q or 1H only includes stats from that period." },
+      4: { label: "Can't cancel early", text: "I don't have the ability to cancel that early on my end, it will void later this evening on its own." },
+      5: { label: "Settlement delay (scoring)", text: "I can see that entry is still showing as pending. That happens when the official scoring from our stats provider hasn't been finalized yet, could be stat confirmations, a game status update, or the provider just running a bit behind. Nothing wrong on your side, it will settle once they close it out." },
+      6: { label: "Makeup special request", text: "I can submit this to the team as a request for a makeup special. I don't have an ETA on it, but I can confirm it's been submitted for your account." },
+      7: { label: "Projection temporarily missing", text: "For future reference, if a projection disappears like that it usually just means it's being updated behind the scenes. That's pretty common and normally takes about 15 minutes. If it happens again and your token still has time on it, give it 15 minutes and it should reappear." },
+      8: { label: "30-day rolling limit", text: "Just to clarify how that works, your limit doesn't reset at the top of the calendar month. It's a rolling 30-day window, so the system looks at your activity from the past 30 days and your available limit updates daily as older activity rolls out of that window." },
+      9: { label: "Bonus expired (14 days)", text: "Our bonus funds expire after 14 days, and unfortunately I'm not able to re-add them once they're gone. I know that's not what you wanted to hear, I'm here if there's anything else I can help with." },
+      10: { label: "User-canceled entry", text: "That entry was actually canceled by you, less than two minutes after it was created, and you were refunded automatically at that time. You can see the record of that under Account, then Transaction History. We didn't cancel it on our end." },
+      11: { label: "Account suspended (review)", text: "Your account is currently suspended for a standard security review. Our team sent an email requesting some documents, please reply to that email (subject line \"Important Information Regarding Your Account\") with what's requested. Once the review wraps up, they'll follow up with next steps." },
+      12: { label: "Responsible gaming limits", text: "You can set your own restrictions on deposits, entry fees, and contest amounts under Account, then Responsible Gaming Limits. Those are self-service on your end, we aren't able to edit them for you from our side." },
+      13: { label: "Account limits (Risk team)", text: "The current limits on your account are set by our Risk and Product Operations teams, I don't have the ability to override those on my end. If your account qualifies for an increase down the line, those teams will handle it directly." },
+      14: { label: "Stats look wrong", text: "Our stats pull directly from our official data provider and update in real time as a game progresses. What can look like a glitch is sometimes just a stat correction from the league itself, like an assist getting added or a rebound getting reassigned after review, those corrections happen at the league level, not on ours. If you've got a specific entry where the grading looks off, send it over and I'll pull up exactly how each pick was scored." },
+      15: { label: "Password reset", text: "Thanks for reaching out about the login trouble! I've sent a password reset link to the email on file. If you don't see it, check your spam or junk folder, and keep in mind the link expires in 10 minutes. If it expires, you can request a new one from \"Forgot Password\" on the login screen.\nIf you're still stuck after resetting: delete any old reset emails first, request a fresh link and complete the reset, fully close the app or browser and start a new session, then manually type in the new password and try logging in again." },
+      16: { label: "Location/VPN error", text: "That 'boundary configuration error' usually means we're having trouble verifying your exact location. A few things to try: make sure any VPNs or proxies are turned off, try a different browser, double check location services are fully enabled, and if you're near a state border, moving to a spot with clearer GPS visibility can help too." }
+    }
+  };
+
+  function freshBanks(){
+    var seeded = {};
+    bankOrder.forEach(function(b){ seeded[b] = JSON.parse(JSON.stringify(defaultsByBank[b] || {})); });
+    return seeded;
+  }
+
+  function normalizeBanks(raw){
+    var out = {};
+    bankOrder.forEach(function(b){
+      var src = (raw && typeof raw === 'object') ? raw[b] : null;
+      var bankObj = {};
+      if(src && typeof src === 'object'){
+        Object.keys(src).forEach(function(k){
+          var entry = src[k];
+          if(entry && typeof entry === 'object' && typeof entry.text === 'string'){
+            bankObj[k] = { label: typeof entry.label === 'string' ? entry.label : '', text: entry.text };
+          }
+        });
+      } else {
+        bankObj = JSON.parse(JSON.stringify(defaultsByBank[b] || {}));
+      }
+      out[b] = bankObj;
+    });
+    return out;
+  }
+
+  function loadBanks(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(raw) return normalizeBanks(JSON.parse(raw));
+    }catch(e){ noteStorageFailure(); }
+    var seeded = freshBanks();
+    try{
+      var old = localStorage.getItem(OLD_STORAGE_KEY);
+      if(old) seeded.A = JSON.parse(old);
+    }catch(e){ noteStorageFailure(); }
+    return seeded;
+  }
+  function saveBanks(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(banks)); }catch(e){ noteStorageFailure(); }
+  }
+
+  /* ---- data layer: tombstones, default merge, snapshots, backup ---- */
+  var META_KEY = 'macro-pad-meta-v1';
+  var PINS_KEY = 'macro-pad-pins-v1';
+  var RECENTS_KEY = 'macro-pad-recents-v1';
+  var WRAP_KEY = 'macro-pad-wrap-v1';
+  var USAGE_KEY = 'macro-pad-usage-v1';
+  var USAGE_KEEP_DAYS = 120;
+  var LINT_KEY = 'macro-pad-lint-v1';
+  var MAX_PINS = 10;
+  var MAX_RECENTS = 10;
+  var LINT_DEFAULT_WORDS = ['sportsbook', 'sportsbooks', 'bet', 'bets', 'betting', 'wager', 'wagers', 'correlated', 'discretion', 'apologize', 'apologies'];
+
+  // Fingerprints (label + text) of earlier built-in versions. A saved macro that still matches one of
+  // these was never edited by the user, so it is safe to upgrade to the current built-in wording.
+  // Built-in slots added after deletion tracking began. Older saves never had them, so a missing slot here
+  // means "new", not "deleted".
+  var DEFAULTS_ADDED_AFTER_FREEZE = ['B:7', 'B:8', 'B:9', 'B:10', 'B:11', 'B:12', 'B:13', 'B:14'];
+
+  var DEFAULTS_SUPERSEDED = {
+    'A:1': ['5itz5'],
+    'A:5': ['2qkdqp'],
+    'A:15': ['1iw1yje'],
+    'B:1': ['1ef9tye'],
+    'B:2': ['1uhu8sc'],
+    'B:6': ['4ntp2z'],
+    'B:7': ['utv938', 'lymoou'],
+    'B:8': ['9lghay'],
+    'B:9': ['u99pbm', '1coqksp', 'zeclpy'],
+    'B:10': ['grm7ge'],
+    'B:12': ['mqgb0w', 'ucwcr1'],
+    'B:13': ['1dtuwto', 'ucwcr1'],
+    'B:14': ['xy9ulf']
+  };
+
+  // Built-in macros that were removed from the defaults. An unedited saved copy is deleted on load.
+  var DEFAULTS_RETIRED = {};
+
+  // Built-in macros that moved to a new slot. Their usage count is carried over.
+  var DEFAULTS_MOVED = { 'B:14': 'B:13' };
+
+  function hashMacro(label, text){
+    var str = label + '\u0000' + text, h = 5381;
+    for(var i = 0; i < str.length; i++){ h = ((h << 5) + h + str.charCodeAt(i)) | 0; }
+    return (h >>> 0).toString(36);
+  }
+
+  function storageHas(key){
+    try{ return localStorage.getItem(key) !== null; }catch(e){ return false; }
+  }
+  function loadJson(key, fallback){
+    try{
+      var raw = localStorage.getItem(key);
+      if(raw) return JSON.parse(raw);
+    }catch(e){ noteStorageFailure(); }
+    return fallback;
+  }
+  function saveJson(key, value){
+    try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){ noteStorageFailure(); }
+  }
+
+  function emptyMeta(){
+    var d = {};
+    bankOrder.forEach(function(b){ d[b] = []; });
+    return { deleted: d };
+  }
+  function normalizeMeta(raw){
+    var m = emptyMeta();
+    if(raw && typeof raw === 'object' && raw.deleted && typeof raw.deleted === 'object'){
+      bankOrder.forEach(function(b){
+        var list = raw.deleted[b];
+        if(Array.isArray(list)){
+          m.deleted[b] = list.map(String).filter(function(k, i, arr){ return /^\d{1,2}$/.test(k) && arr.indexOf(k) === i; });
+        }
+      });
+    }
+    return m;
+  }
+  function loadMeta(){ return normalizeMeta(loadJson(META_KEY, null)); }
+  function saveMeta(){ saveJson(META_KEY, meta); }
+
+  function sanitizeRefs(list, max){
+    var out = [];
+    if(Array.isArray(list)){
+      list.forEach(function(r){
+        if(typeof r === 'string' && /^[A-H]:\d{1,2}$/.test(r) && out.indexOf(r) === -1) out.push(r);
+      });
+    }
+    return out.slice(0, max);
+  }
+  function sanitizeWrap(raw){
+    var closers = ['none', 'standard', 'bad'];
+    return {
+      opener: !!(raw && raw.opener),
+      wait: (raw && raw.wait === 'long') ? 'long' : 'standard',
+      closer: (raw && closers.indexOf(raw.closer) !== -1) ? raw.closer : 'none'
+    };
+  }
+  // Usage tally per pad: { "B:10": { n: total copies, l: label when counted, f: first, last: latest, d: { "2026-10-25": 3 } } }.
+  // Only the pad, its label and a count are kept. Never the macro text or anything typed into a fill-in form.
+  function sanitizeUsage(raw){
+    var out = {};
+    if(!raw || typeof raw !== 'object' || Array.isArray(raw)) return out;
+    Object.keys(raw).forEach(function(k){
+      var u = raw[k];
+      if(!/^[A-H]:\d{1,2}$/.test(k) || !u || typeof u !== 'object') return;
+      var n = Math.floor(Number(u.n));
+      if(!isFinite(n) || n < 1) return;
+      var d = {};
+      if(u.d && typeof u.d === 'object' && !Array.isArray(u.d)){
+        Object.keys(u.d).forEach(function(day){
+          var c = Math.floor(Number(u.d[day]));
+          if(/^\d{4}-\d{2}-\d{2}$/.test(day) && isFinite(c) && c > 0) d[day] = c;
+        });
+      }
+      var last = Number(u.last), first = Number(u.f);
+      out[k] = { n: n, l: String(u.l || '').slice(0, 60), f: first > 0 ? first : (last > 0 ? last : 0), last: last > 0 ? last : 0, d: d };
+    });
+    return out;
+  }
+  function sanitizeWords(raw){
+    if(!Array.isArray(raw)) return LINT_DEFAULT_WORDS.slice();
+    var out = [];
+    raw.forEach(function(w){
+      if(typeof w !== 'string') return;
+      w = w.trim().toLowerCase();
+      if(w && w.length <= 40 && out.indexOf(w) === -1) out.push(w);
+    });
+    return out.slice(0, 80);
+  }
+  function sanitizeBindings(parsed){
+    var out = {};
+    if(parsed && typeof parsed === 'object'){
+      Object.keys(parsed).forEach(function(k){
+        var b = parsed[k];
+        if(!/^(note|cc):\d{1,2}:\d{1,3}$/.test(k) || !b || typeof b !== 'object') return;
+        if(b.kind === 'pad' && Number.isInteger(b.value) && b.value >= 1 && b.value <= 16) out[k] = { kind: 'pad', value: b.value };
+        else if(b.kind === 'bank' && bankOrder.indexOf(b.value) !== -1) out[k] = { kind: 'bank', value: b.value };
+      });
+    }
+    return out;
+  }
+
+  // Adds built-in macros that are new since the saved data was written, and upgrades untouched
+  // macros whose built-in wording has changed. Never overwrites edits, never resurrects deletions.
+  function mergeDefaults(target, metaObj){
+    var changed = false;
+    bankOrder.forEach(function(b){
+      var defs = defaultsByBank[b] || {};
+      Object.keys(defs).forEach(function(k){
+        var def = defs[k];
+        var cur = target[b][k];
+        if(!cur){
+          if(metaObj.deleted[b].indexOf(k) === -1){
+            target[b][k] = { label: def.label, text: def.text };
+            changed = true;
+          }
+          return;
+        }
+        var old = DEFAULTS_SUPERSEDED[b + ':' + k];
+        if(old && old.indexOf(hashMacro(cur.label, cur.text)) !== -1){
+          target[b][k] = { label: def.label, text: def.text };
+          changed = true;
+        }
+      });
+    });
+    Object.keys(DEFAULTS_RETIRED).forEach(function(key){
+      var parts = key.split(':');
+      var cur = target[parts[0]] && target[parts[0]][parts[1]];
+      var stillBuiltIn = defaultsByBank[parts[0]] && defaultsByBank[parts[0]][parts[1]];
+      if(cur && !stillBuiltIn && DEFAULTS_RETIRED[key].indexOf(hashMacro(cur.label, cur.text)) !== -1){
+        delete target[parts[0]][parts[1]];
+        changed = true;
+      }
+    });
+    return changed;
+  }
+
+  function loadFieldValue(key){
+    try{ return localStorage.getItem(key) || ''; }catch(e){ noteStorageFailure(); return ''; }
+  }
+  function saveFieldValue(key, v){
+    try{ localStorage.setItem(key, v); }catch(e){ noteStorageFailure(); }
+  }
+
+  var placeholderFields = [
+    { token: '{{PLAYER}}', storageKey: 'macro-pad-player-v1', fallback: 'the player', fieldId: 'player-field', inputId: 'player-input' },
+    { token: '{{SOCURE_LINK}}', extraVisibilityTokens: ['{{SOCURE_UPLOAD_LINK}}'], storageKey: 'macro-pad-socure-v1', fallback: 'this link', fieldId: 'socure-field', inputId: 'socure-input' }
+  ];
+
+  function findPlaceholderField(storageKey){
+    for(var i = 0; i < placeholderFields.length; i++){
+      if(placeholderFields[i].storageKey === storageKey) return placeholderFields[i];
+    }
+    return null;
+  }
+
+  var SOCURE_ALLOWED_HOSTS = ['verify.socure.com'];
+  function validateSocureUrl(value){
+    if(!value) return null;
+    var url;
+    try{ url = new URL(value); }catch(e){ return null; }
+    if(url.protocol !== 'https:') return null;
+    if(SOCURE_ALLOWED_HOSTS.indexOf(url.hostname) === -1) return null;
+    return url.href;
+  }
+
+  var savedBanksExisted = storageHas(STORAGE_KEY);
+  var metaExisted = storageHas(META_KEY);
+  var banks = loadBanks();
+  var meta = loadMeta();
+  if(savedBanksExisted){
+    if(!metaExisted){
+      // Older save with no deletion record: whatever is already missing counts as deleted on purpose.
+      bankOrder.forEach(function(b){
+        Object.keys(defaultsByBank[b] || {}).forEach(function(k){
+          if(!banks[b][k] && DEFAULTS_ADDED_AFTER_FREEZE.indexOf(b + ':' + k) === -1 && meta.deleted[b].indexOf(k) === -1) meta.deleted[b].push(k);
+        });
+      });
+      saveMeta();
+    }
+    if(mergeDefaults(banks, meta)) saveBanks();
+  }
+  var pins = sanitizeRefs(loadJson(PINS_KEY, []), MAX_PINS);
+  var recents = sanitizeRefs(loadJson(RECENTS_KEY, []), MAX_RECENTS);
+  var wrapPrefs = sanitizeWrap(loadJson(WRAP_KEY, null));
+  var lintWords = sanitizeWords(loadJson(LINT_KEY, null));
+  var usage = sanitizeUsage(loadJson(USAGE_KEY, {}));
+  Object.keys(DEFAULTS_MOVED).forEach(function(from){
+    var to = DEFAULTS_MOVED[from], tp = to.split(':'), m = banks[tp[0]] && banks[tp[0]][tp[1]];
+    var fp = from.split(':'), here = banks[fp[0]] && banks[fp[0]][fp[1]];
+    if(usage[from] && !usage[to] && !(here && here.label === usage[from].l) && m && usage[from].l === m.label){
+      usage[to] = usage[from];
+      delete usage[from];
+      saveJson(USAGE_KEY, usage);
+    }
+  });
+  var currentBank = 'B';
+  var mode = 'play';
+  var editingPad = null;
+  var editorDirty = false;
+  var copyFlagTimer = null;
+  var lastShownPad = null;
+
+  var grid = document.getElementById('grid');
+  var bankGrid = document.getElementById('bank-grid');
+  var bankNameEl = document.getElementById('bank-name');
+  var screenEyebrow = document.getElementById('screen-eyebrow');
+  var screenNum = document.getElementById('screen-num');
+  var screenTitle = document.getElementById('screen-title');
+  var screenRight = document.getElementById('screen-right');
+  var hint = document.getElementById('hint');
+
+  placeholderFields.forEach(function(field){
+    field.el = document.getElementById(field.fieldId);
+    field.input = document.getElementById(field.inputId);
+    field.value = loadFieldValue(field.storageKey);
+    field.input.value = field.value;
+    field.input.addEventListener('input', function(){
+      field.value = field.input.value;
+      saveFieldValue(field.storageKey, field.value);
+      refreshResolved();
+    });
+  });
+
+  var MIDI_KEY = 'macro-pad-midi-bindings-v1';
+  function loadMidiBindings(){
+    return sanitizeBindings(loadJson(MIDI_KEY, null));
+  }
+  function saveMidiBindings(){
+    try{ localStorage.setItem(MIDI_KEY, JSON.stringify(midiBindings)); }catch(e){ noteStorageFailure(); }
+    invalidateUndo();
+  }
+
+  var midiBindings = loadMidiBindings();
+  var midiInput = null;
+  var midiLearnMode = false;
+  var midiArmed = null;
+
+  var midiPanel = document.getElementById('midi-panel');
+  var midiConnectBtn = document.getElementById('midi-connect');
+  var midiLearnBtn = document.getElementById('midi-learn');
+  var midiClearBtn = document.getElementById('midi-clear');
+  var midiStatus = document.getElementById('midi-status');
+
+  function isPadMapped(n){
+    return Object.keys(midiBindings).some(function(k){
+      var b = midiBindings[k];
+      return b.kind === 'pad' && b.value === n;
+    });
+  }
+
+  var midiAccess = null;
+  var MIDI_AUTO_KEY = 'macro-pad-midi-auto-v1';
+
+  function pickMidiInput(){
+    if(!midiAccess) return null;
+    var live = Array.from(midiAccess.inputs.values()).filter(function(i){ return i.state !== 'disconnected'; });
+    return live.filter(function(i){ return /maschine/i.test(i.name || ''); })[0] || live[0] || null;
+  }
+
+  function refreshMidiConnection(reason){
+    var best = pickMidiInput();
+    if(best){
+      var lostMaschine = midiInput && midiInput !== best && /maschine/i.test(midiInput.name || '') && !/maschine/i.test(best.name || '');
+      if(midiInput && midiInput !== best) midiInput.onmidimessage = null;
+      midiInput = best;
+      midiInput.onmidimessage = onMidiMessage;
+      midiStatus.textContent = lostMaschine
+        ? 'Maschine disconnected. Using ' + midiInput.name + ' for now, plug the Maschine back in and it switches back.'
+        : 'Connected: ' + midiInput.name;
+    } else if(midiInput){
+      midiInput.onmidimessage = null;
+      midiInput = null;
+      midiStatus.textContent = 'Maschine disconnected. Plug it back in (SHIFT + CHANNEL for MIDI mode) and it reconnects on its own.';
+    } else if(reason === 'connect'){
+      midiStatus.textContent = 'No MIDI devices found. Put your Maschine in MIDI mode (SHIFT + CHANNEL) and try again.';
+    }
+  }
+
+  function connectMidi(auto){
+    navigator.requestMIDIAccess().then(function(access){
+      midiAccess = access;
+      access.onstatechange = function(){ refreshMidiConnection('state'); };
+      try{ localStorage.setItem(MIDI_AUTO_KEY, '1'); }catch(e){}
+      refreshMidiConnection('connect');
+    }).catch(function(){
+      if(!auto) midiStatus.textContent = 'MIDI access is blocked here. Open this file directly in Chrome (not the shared preview) to connect your Maschine.';
+    });
+  }
+
+  function autoConnectMidi(){
+    if(!navigator.requestMIDIAccess || !storageHas(MIDI_AUTO_KEY)) return;
+    if(navigator.permissions && navigator.permissions.query){
+      navigator.permissions.query({ name: 'midi' }).then(function(p){
+        if(p.state === 'granted') connectMidi(true);
+      }).catch(function(){});
+    }
+  }
+
+  document.addEventListener('visibilitychange', function(){
+    if(!document.hidden && midiAccess) refreshMidiConnection('wake');
+  });
+
+  function onMidiMessage(e){
+    var data = e.data;
+    var status = data[0] & 0xF0;
+    var channel = data[0] & 0x0F;
+    var number = data[1];
+    var value = data[2];
+    var type = null;
+    if(status === 0x90 && value > 0) type = 'note';
+    else if(status === 0xB0 && value > 0) type = 'cc';
+    else return;
+    var key = type + ':' + channel + ':' + number;
+
+    if(midiArmed){
+      midiBindings[key] = midiArmed;
+      saveMidiBindings();
+      midiStatus.textContent = 'Mapped ' + (midiArmed.kind === 'pad' ? 'pad ' + midiArmed.value : 'Bank ' + midiArmed.value) + '. Click another pad or bank to keep mapping, or turn off Learn when done.';
+      midiArmed = null;
+      render();
+      renderBanks();
+      return;
+    }
+
+    var binding = midiBindings[key];
+    if(!binding) return;
+    if(binding.kind === 'pad'){
+      if(mode === 'play') firePad(binding.value);
+    } else if(binding.kind === 'bank'){
+      switchBank(binding.value);
+    }
+  }
+
+  function setupMidiPanel(){
+    if(!navigator.requestMIDIAccess) return;
+    midiPanel.hidden = false;
+    midiConnectBtn.addEventListener('click', function(){ connectMidi(false); });
+    midiLearnBtn.addEventListener('click', function(){
+      midiLearnMode = !midiLearnMode;
+      midiArmed = null;
+      midiLearnBtn.classList.toggle('active', midiLearnMode);
+      render();
+      renderBanks();
+      midiStatus.textContent = midiLearnMode
+        ? 'Learn mode: click a pad or bank button, then hit the matching key on your Maschine.'
+        : (midiInput ? 'Connected: ' + midiInput.name : 'Not connected');
+    });
+    midiClearBtn.addEventListener('click', function(){
+      midiBindings = {};
+      saveMidiBindings();
+      midiStatus.textContent = 'MIDI mappings cleared.';
+      render();
+      renderBanks();
+    });
+  }
+
+  var calcBuilt = false;
+  function ensureCalcBuilt(){
+    if(calcBuilt) return;
+    calcBuilt = true;
+    buildFlexCalc();
+    buildFPCalc();
+  }
+
+  function buildFlexCalc(){
+    var wrap = document.getElementById('calc-flex');
+    wrap.innerHTML =
+      '<div class="calc-card">' +
+        '<div class="calc-card-title">Flex Calculator</div>' +
+        '<div class="calc-note"><strong>Multiplier display note:</strong> the app shows decimal-style multipliers at roughly 2x the internal Pick\'em multiplier. An in-app 1.5x selection is internally 0.75x, that is just a display difference, it does not change the payout.</div>' +
+        '<div id="flexPlayers"></div>' +
+        '<div class="calc-button-row"><button class="calc-pill" id="flexAddPlayer" type="button">+ Add player</button></div>' +
+        '<div class="calc-field-row">' +
+          '<div class="calc-field"><label>Correlation shift</label><input id="flexShift" type="number" step="any" value="1"></div>' +
+          '<div class="calc-field"><label>Entry fee ($)</label><input id="flexFee" type="number" step="0.01" value="5"></div>' +
+          '<div class="calc-field"><label>Profit boost %</label><input id="flexBoost" type="number" step="any" placeholder="0"></div>' +
+        '</div>' +
+        '<div class="calc-button-row">' +
+          '<button class="calc-pill active" id="stdBtn" type="button" aria-pressed="true">Standard</button>' +
+          '<button class="calc-pill" id="flexBtn" type="button" aria-pressed="false">Flexed</button>' +
+          '<button class="calc-pill" id="tokenBtn" type="button" aria-pressed="false">Gimme?</button>' +
+          '<button class="calc-pill" id="bonusBtn" type="button" aria-pressed="false">Bonus?</button>' +
+          '<button class="calc-pill" id="champBtn" type="button" aria-pressed="false">Champs?</button>' +
+        '</div>' +
+        '<div class="calc-note" id="flexGimmeNote" hidden>Gimme and Flexed cannot be combined, since the Gimme bonus math is only defined for Standard entries. Turning one on turns the other off.</div>' +
+        '<div class="calc-field-row">' +
+          '<div class="calc-field"><label>Actual Champions payout</label><input id="flexActualPayout" type="number" step="0.01" placeholder="From ticket"></div>' +
+        '</div>' +
+        '<div class="calc-results" id="flexResults"></div>' +
+      '</div>';
+
+    var flexState = {
+      players: [{ n: '', m: '', lost: false }, { n: '', m: '', lost: false }],
+      flexed: false,
+      token: false,
+      bonusEntry: false,
+      isChamp: false
+    };
+
+    function renderPlayers(){
+      var list = wrap.querySelector('#flexPlayers');
+      list.innerHTML = '';
+      flexState.players.forEach(function(player, index){
+        var row = document.createElement('div');
+        row.className = 'calc-player-row';
+
+        var statusBtn = document.createElement('button');
+        statusBtn.type = 'button';
+        statusBtn.className = 'calc-status-btn' + (player.lost ? ' lost' : '');
+        statusBtn.textContent = player.lost ? '✗' : '✓';
+        statusBtn.setAttribute('aria-pressed', player.lost ? 'true' : 'false');
+        statusBtn.setAttribute('aria-label', 'Player ' + (index + 1) + ', currently marked as ' + (player.lost ? 'a loss, click to mark as a win' : 'a win, click to mark as a loss'));
+        statusBtn.addEventListener('click', function(){
+          flexState.players[index].lost = !flexState.players[index].lost;
+          renderPlayers();
+          calc();
+        });
+        row.appendChild(statusBtn);
+
+        var nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.placeholder = 'Player ' + (index + 1);
+        nameInput.value = player.n;
+        nameInput.setAttribute('aria-label', 'Player ' + (index + 1) + ' name');
+        nameInput.style.flex = '1';
+        if(player.lost){ nameInput.style.textDecoration = 'line-through'; nameInput.style.opacity = '.55'; }
+        nameInput.addEventListener('input', function(){ flexState.players[index].n = nameInput.value; });
+        row.appendChild(nameInput);
+
+        var multInput = document.createElement('input');
+        multInput.type = 'number';
+        multInput.step = '0.01';
+        multInput.placeholder = 'Mult';
+        multInput.value = player.m;
+        multInput.setAttribute('aria-label', 'Player ' + (index + 1) + ' multiplier');
+        multInput.style.width = '80px';
+        multInput.style.textAlign = 'center';
+        if(player.lost){ multInput.style.textDecoration = 'line-through'; multInput.style.opacity = '.55'; }
+        multInput.addEventListener('input', function(){ flexState.players[index].m = multInput.value; calc(); });
+        row.appendChild(multInput);
+
+        if(flexState.players.length > 2){
+          var removeBtn = document.createElement('button');
+          removeBtn.type = 'button';
+          removeBtn.className = 'calc-remove-btn';
+          removeBtn.textContent = '×';
+          removeBtn.setAttribute('aria-label', 'Remove player ' + (index + 1));
+          removeBtn.addEventListener('click', function(){
+            flexState.players.splice(index, 1);
+            renderPlayers();
+            calc();
+          });
+          row.appendChild(removeBtn);
+        }
+
+        list.appendChild(row);
+      });
+    }
+
+    function money(value){ return '$' + value.toFixed(2); }
+
+    function calc(){
+      var picks = flexState.players.length;
+      var fee = parseFloat(wrap.querySelector('#flexFee').value) || 0;
+      var shift = parseFloat(wrap.querySelector('#flexShift').value) || 1;
+      var boost = (parseFloat(wrap.querySelector('#flexBoost').value) || 0) / 100;
+      var actualChampPayout = parseFloat(wrap.querySelector('#flexActualPayout').value) || 0;
+      var row = PAYOUT_TABLE[picks];
+      var missed = flexState.flexed ? flexState.players.filter(function(p){ return p.lost; }).length : 0;
+      var winners = flexState.players.filter(function(p){ return !p.lost && p.m !== '' && !Number.isNaN(parseFloat(p.m)); });
+      var allFilled = flexState.players.every(function(p){ return p.lost || (p.m !== '' && !Number.isNaN(parseFloat(p.m))); });
+      var stdLost = !flexState.flexed && flexState.players.some(function(p){ return p.lost; });
+      var results = wrap.querySelector('#flexResults');
+
+      var base = null;
+      if(row){
+        if(!flexState.flexed) base = row.std;
+        else if(missed === 0) base = row.f0;
+        else if(missed === 1) base = row.f1;
+        else if(missed === 2) base = row.f2;
+      }
+
+      if(stdLost){
+        results.innerHTML = '<div class="calc-danger"><div class="headline">Standard entry lost</div><div class="amount">$0.00</div><div class="calc-note" style="margin:8px 0 0;">Any loss on a standard entry means the full entry loses.</div></div>';
+        return;
+      }
+      if(!allFilled || base === null){
+        results.innerHTML = '<div class="calc-note">Fill in all player multipliers to see the payout. Flex is only available when the payout table supports that pick count and miss count.</div>';
+        return;
+      }
+
+      var prod = winners.reduce(function(sum, player){ return sum * parseFloat(player.m); }, 1);
+      var baseMult = prod * shift * base;
+      var boostMult = boost > 0 ? baseMult * boost : 0;
+      var sysMult = baseMult + boostMult;
+      var trunc = Math.floor(sysMult * 100) / 100;
+      var basePayout = Math.floor(baseMult * fee * 100) / 100;
+      var boostPayout = Math.floor(boostMult * fee * 100) / 100;
+      var totalPayout = basePayout + boostPayout;
+      var effectivePayout = flexState.isChamp && actualChampPayout > 0 ? actualChampPayout : totalPayout;
+      var customerReceives = flexState.bonusEntry ? effectivePayout - fee : effectivePayout;
+
+      var html = '<div class="calc-results-grid">' +
+        '<div class="name">Winners (' + winners.length + '/' + picks + ')</div><div class="value">' + prod.toFixed(4) + '</div>' +
+        '<div class="name">Base (' + picks + '-pick ' + (flexState.flexed ? 'flex' : 'standard') + ')</div><div class="value">' + base + 'x</div>' +
+        '<div class="name">Base multiplier</div><div class="value bold">' + baseMult.toFixed(2) + 'x</div>';
+
+      if(boost > 0){
+        html += '<div class="name">Boost</div><div class="value">+' + boostMult.toFixed(4) + 'x</div>' +
+                '<div class="name">System multiplier</div><div class="value bold">' + trunc.toFixed(2) + 'x</div>';
+      }
+
+      if(!flexState.token){
+        if(flexState.isChamp && actualChampPayout > 0){
+          html += '<div class="name">Calculated payout</div><div class="value">' + money(totalPayout) + '</div>';
+          html += '<div class="name">Champions actual</div><div class="value bold" style="color:var(--pad-hot-core);">' + money(actualChampPayout) + '</div>';
+        } else {
+          html += '<div class="name">Pick\'em payout</div><div class="value bold" style="color:var(--pad-copied);">' + money(basePayout) + '</div>';
+          if(boost > 0) html += '<div class="name">Boost bonus</div><div class="value">' + money(boostPayout) + '</div><div class="name">Total</div><div class="value bold" style="color:var(--pad-copied);">' + money(totalPayout) + '</div>';
+        }
+        if(flexState.bonusEntry){
+          html += '<div class="name">Bonus entry deduction</div><div class="value">-' + money(fee) + '</div>';
+          html += '<div class="name">Customer receives</div><div class="value bold" style="color:var(--pad-copied);">' + money(customerReceives) + '</div>';
+        } else if(!flexState.isChamp || actualChampPayout <= 0){
+          html += '<div class="name">Profit</div><div class="value">' + money(totalPayout - fee) + '</div>';
+        } else {
+          html += '<div class="name">Net profit</div><div class="value">' + money(actualChampPayout - fee) + '</div>';
+        }
+      } else {
+        var prevRow = PAYOUT_TABLE[picks - 1];
+        var prevBase = prevRow ? prevRow.std : null;
+        if(picks < 3 || prevBase === null){
+          html += '<div class="name">Gimme</div><div class="value">Only available on 3+ picks</div>';
+        } else {
+          var cashMult = prod * shift * prevBase;
+          var bonusMult = prod * shift * (base - prevBase);
+          var cash = Math.floor(cashMult * fee * 100) / 100;
+          var bonusCash = Math.floor(bonusMult * fee * 100) / 100;
+          var tokenTotal = cash + bonusCash + boostPayout;
+          html += '<div class="name">Cash</div><div class="value bold" style="color:var(--pad-copied);">' + money(cash) + '</div>' +
+                  '<div class="name">Bonus</div><div class="value bold">' + money(bonusCash) + '</div>';
+          if(boost > 0) html += '<div class="name">Boost bonus</div><div class="value">' + money(boostPayout) + '</div>';
+          if(flexState.isChamp && actualChampPayout > 0){
+            html += '<div class="name">Calculated total</div><div class="value">' + money(tokenTotal) + '</div>';
+            html += '<div class="name">Champions actual</div><div class="value bold" style="color:var(--pad-hot-core);">' + money(actualChampPayout) + '</div>';
+          } else {
+            html += '<div class="name">Total</div><div class="value bold" style="color:var(--pad-copied);">' + money(tokenTotal) + '</div>';
+          }
+          if(flexState.bonusEntry){
+            var tokenReceive = (flexState.isChamp && actualChampPayout > 0 ? actualChampPayout : tokenTotal) - fee;
+            html += '<div class="name">Bonus entry deduction</div><div class="value">-' + money(fee) + '</div>';
+            html += '<div class="name">Customer receives</div><div class="value bold" style="color:var(--pad-copied);">' + money(tokenReceive) + '</div>';
+          }
+        }
+      }
+
+      html += '</div>';
+      if(flexState.isChamp){
+        html += '<div class="calc-note" style="margin-top:10px;">Champions payouts can vary slightly from the baseline multiplier math because the pool payout depends on the number of winners.</div>';
+      }
+      results.innerHTML = html;
+    }
+
+    wrap.querySelector('#flexAddPlayer').onclick = function(){
+      if(flexState.players.length < 8){
+        flexState.players.push({ n: '', m: '', lost: false });
+        renderPlayers();
+        calc();
+      }
+    };
+    function setPillState(id, active){
+      var btn = wrap.querySelector(id);
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    }
+
+    wrap.querySelector('#stdBtn').onclick = function(){
+      flexState.flexed = false;
+      setPillState('#stdBtn', true);
+      setPillState('#flexBtn', false);
+      calc();
+    };
+    wrap.querySelector('#flexBtn').onclick = function(){
+      flexState.flexed = true;
+      setPillState('#flexBtn', true);
+      setPillState('#stdBtn', false);
+      if(flexState.token){
+        flexState.token = false;
+        setPillState('#tokenBtn', false);
+        wrap.querySelector('#tokenBtn').textContent = 'Gimme?';
+      }
+      wrap.querySelector('#flexGimmeNote').hidden = true;
+      calc();
+    };
+    wrap.querySelector('#tokenBtn').onclick = function(){
+      flexState.token = !flexState.token;
+      if(flexState.token && flexState.flexed){
+        flexState.flexed = false;
+        setPillState('#flexBtn', false);
+        setPillState('#stdBtn', true);
+        wrap.querySelector('#flexGimmeNote').hidden = false;
+      }
+      setPillState('#tokenBtn', flexState.token);
+      wrap.querySelector('#tokenBtn').textContent = flexState.token ? 'Gimme: ON' : 'Gimme?';
+      calc();
+    };
+    wrap.querySelector('#bonusBtn').onclick = function(){
+      flexState.bonusEntry = !flexState.bonusEntry;
+      setPillState('#bonusBtn', flexState.bonusEntry);
+      wrap.querySelector('#bonusBtn').textContent = flexState.bonusEntry ? 'Bonus entry' : 'Bonus?';
+      calc();
+    };
+    wrap.querySelector('#champBtn').onclick = function(){
+      flexState.isChamp = !flexState.isChamp;
+      setPillState('#champBtn', flexState.isChamp);
+      wrap.querySelector('#champBtn').textContent = flexState.isChamp ? 'Champions' : 'Champs?';
+      calc();
+    };
+    ['#flexShift', '#flexFee', '#flexBoost', '#flexActualPayout'].forEach(function(sel){
+      wrap.querySelector(sel).addEventListener('input', calc);
+    });
+
+    renderPlayers();
+    calc();
+  }
+
+  function pluralizeStat(word, count){
+    if(count === 1) return word;
+    if(/[^aeiou]y$/i.test(word)) return word.replace(/y$/i, 'ies');
+    if(/(s|x|z|ch|sh)$/i.test(word)) return word + 'es';
+    return word + 's';
+  }
+
+  function buildFPCalc(){
+    var wrap = document.getElementById('calc-fp');
+    var sportOptions = Object.keys(FP_TABLE);
+    var sport = sportOptions[0];
+    var values = {};
+
+    function render(){
+      var stats = FP_TABLE[sport];
+      var total = stats.reduce(function(sum, stat){ return sum + ((parseFloat(values[sport + stat.s]) || 0) * stat.p); }, 0);
+      var enteredStats = stats
+        .map(function(stat){ return { stat: stat, amount: values[sport + stat.s] }; })
+        .filter(function(item){ return item.amount !== '' && item.amount !== undefined && !Number.isNaN(parseFloat(item.amount)); });
+      var breakdown = enteredStats.length
+        ? enteredStats.map(function(item){
+            var amt = parseFloat(item.amount) || 0;
+            var fp = (amt * item.stat.p).toFixed(2);
+            return item.amount + ' ' + pluralizeStat(item.stat.s, amt) + ' (' + fp + ' pts)';
+          }).join(', ') + ' = ' + total.toFixed(2) + ' total fantasy points.'
+        : '';
+
+      wrap.innerHTML =
+        '<div class="calc-card">' +
+          '<div class="calc-card-title">Fantasy Points Calculator</div>' +
+          '<div class="calc-button-row" id="fpSportRow"></div>' +
+          '<div class="calc-results-grid" style="margin-bottom:6px;">' +
+            '<div class="name" style="font-weight:600;">Stat</div><div class="value" style="text-align:left;font-weight:600;">Pts / per</div>' +
+          '</div>' +
+          '<div id="fpRows"></div>' +
+          '<div class="calc-results" style="margin-top:10px;">' +
+            '<div class="calc-results-grid"><div class="name">Total fantasy points</div><div class="value bold" style="color:' + (total >= 0 ? 'var(--pad-copied)' : 'var(--danger)') + ';">' + total.toFixed(2) + '</div></div>' +
+          '</div>' +
+          (breakdown ? '<div class="calc-note" style="margin-top:10px;"><strong>Customer-ready breakdown:</strong> ' + breakdown + '</div>' : '') +
+        '</div>';
+
+      var sportRow = wrap.querySelector('#fpSportRow');
+      sportOptions.forEach(function(option){
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'calc-pill' + (sport === option ? ' active' : '');
+        btn.textContent = option;
+        btn.setAttribute('aria-pressed', sport === option ? 'true' : 'false');
+        btn.addEventListener('click', function(){ sport = option; render(); });
+        sportRow.appendChild(btn);
+      });
+
+      var rows = wrap.querySelector('#fpRows');
+      stats.forEach(function(stat){
+        var amount = values[sport + stat.s] || '';
+        var fp = (parseFloat(amount) || 0) * stat.p;
+        var row = document.createElement('div');
+        row.className = 'calc-field-row';
+        row.style.marginTop = '6px';
+        row.innerHTML =
+          '<div class="calc-field"><input value="' + stat.s + '" disabled aria-label="Stat name"></div>' +
+          '<div class="calc-field"><input value="' + stat.p + '" disabled aria-label="Points per ' + stat.s + '"></div>' +
+          '<div class="calc-field"><input data-stat="' + stat.s + '" type="number" step="any" value="' + amount + '" placeholder="Amount" aria-label="' + stat.s + ' amount"></div>' +
+          '<div class="calc-field"><input value="' + (fp ? fp.toFixed(2) : '') + '" disabled aria-label="' + stat.s + ' fantasy points"></div>';
+        rows.appendChild(row);
+      });
+
+      wrap.querySelectorAll('[data-stat]').forEach(function(input){
+        input.oninput = function(){
+          var stat = input.dataset.stat;
+          values[sport + stat] = input.value;
+          render();
+          var again = Array.prototype.filter.call(wrap.querySelectorAll('[data-stat]'), function(el){ return el.dataset.stat === stat; })[0];
+          if(again) again.focus();
+        };
+      });
+    }
+
+    render();
+  }
+
+  function macros(){ return banks[currentBank]; }
+
+  var SOCURE_UPLOAD_TOKEN = '{{SOCURE_UPLOAD_LINK}}';
+  var SOCURE_UPLOAD_PHRASE = 'upload these to this link';
+
+  function socureUploadPlainPhrase(){
+    var field = findPlaceholderField('macro-pad-socure-v1');
+    var validUrl = field ? validateSocureUrl(field.value.trim()) : null;
+    return validUrl ? (SOCURE_UPLOAD_PHRASE + ': ' + validUrl) : SOCURE_UPLOAD_PHRASE;
+  }
+
+  function socureUploadHtmlFragment(){
+    var field = findPlaceholderField('macro-pad-socure-v1');
+    var validUrl = field ? validateSocureUrl(field.value.trim()) : null;
+    return validUrl
+      ? '<a href="' + escapeAttr(validUrl) + '" target="_blank" rel="noopener noreferrer">' + SOCURE_UPLOAD_PHRASE + '</a>'
+      : SOCURE_UPLOAD_PHRASE;
+  }
+
+  function resolveText(text){
+    var result = text;
+    placeholderFields.forEach(function(field){
+      var val = field.value.trim() || field.fallback;
+      result = result.split(field.token).join(val);
+    });
+    result = result.split(SOCURE_UPLOAD_TOKEN).join(socureUploadPlainPhrase());
+    result = result.split('{{YEAR}}').join(String(new Date().getFullYear()));
+    return result;
+  }
+
+  function resolveHtml(text){
+    var plainResolved = text;
+    placeholderFields.forEach(function(field){
+      var val = field.value.trim() || field.fallback;
+      plainResolved = plainResolved.split(field.token).join(val);
+    });
+    plainResolved = plainResolved.split('{{YEAR}}').join(String(new Date().getFullYear()));
+    var parts = plainResolved.split(SOCURE_UPLOAD_TOKEN);
+    return parts.map(function(p){ return escapeText(p).replace(/\n/g, '<br>'); }).join(socureUploadHtmlFragment());
+  }
+
+  function bankUsesToken(bank, token){
+    return Object.keys(banks[bank]).some(function(k){
+      var t = banks[bank][k].text;
+      return t && t.indexOf(token) !== -1;
+    });
+  }
+
+  function updatePlaceholderFieldsVisibility(){
+    placeholderFields.forEach(function(field){
+      var tokens = [field.token].concat(field.extraVisibilityTokens || []);
+      var used = tokens.some(function(t){ return bankUsesToken(currentBank, t); });
+      field.el.hidden = mode === 'calc' || !used;
+    });
+  }
+
+  function renderBanks(){
+    rootStyle.setProperty('--pad-hot-core', bankColors[currentBank].core);
+    rootStyle.setProperty('--pad-hot-edge', bankColors[currentBank].edge);
+    bankGrid.innerHTML = '';
+    bankOrder.forEach(function(b){
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'bank-btn' + (b === currentBank ? ' active' : '') + (Object.keys(banks[b]).length ? ' has-content' : '');
+      btn.style.setProperty('--btn-core', bankColors[b].core);
+      btn.textContent = b;
+      btn.title = bankNames[b];
+      if(midiLearnMode && midiArmed && midiArmed.kind === 'bank' && midiArmed.value === b){
+        btn.className += ' armed';
+      }
+      btn.addEventListener('click', function(){
+        if(midiLearnMode){
+          midiArmed = { kind: 'bank', value: b };
+          midiStatus.textContent = 'Armed Bank ' + b + '. Hit the matching group button on your Maschine.';
+          renderBanks();
+          return;
+        }
+        switchBank(b);
+      });
+      bankGrid.appendChild(btn);
+    });
+    bankNameEl.innerHTML = 'Bank <span class="letter">' + currentBank + '</span> · ' + bankNames[currentBank];
+    screenEyebrow.textContent = 'Pad · Bank ' + currentBank;
+    updatePlaceholderFieldsVisibility();
+  }
+
+  function confirmDiscardEdit(){
+    if(mode === 'edit' && editingPad !== null && editorDirty){
+      return askConfirm('Discard the unsaved macro edit?', 'discard');
+    }
+    return true;
+  }
+
+  function switchBank(b){
+    if(!confirmDiscardEdit()) return;
+    currentBank = b;
+    editingPad = null;
+    resetScreens();
+    renderBanks();
+    render();
+    hint.textContent = mode === 'edit'
+      ? 'Edit mode · Bank ' + currentBank + ' · click any pad to write or update its macro'
+      : 'Play mode · Bank ' + currentBank + ' (' + bankNames[currentBank] + ') · click a pad to copy its macro';
+  }
+
+  function padOrder(){
+    // bottom row first, like hardware pad addressing: 1-4 bottom .. 13-16 top
+    var rows = [[13,14,15,16],[9,10,11,12],[5,6,7,8],[1,2,3,4]];
+    return rows;
+  }
+
+  function render(){
+    grid.innerHTML = '';
+    var rows = padOrder();
+    rows.forEach(function(row){
+      row.forEach(function(n){
+        var m = macros()[n];
+        var pad = document.createElement('button');
+        pad.type = 'button';
+        pad.className = 'pad ' + (m ? 'filled' : 'empty');
+        if(editingPad === n) pad.className += ' editing';
+        if(midiLearnMode && midiArmed && midiArmed.kind === 'pad' && midiArmed.value === n) pad.className += ' armed';
+        pad.setAttribute('data-n', n);
+
+        var num = document.createElement('span');
+        num.className = 'num';
+        num.textContent = n + (isPadMapped(n) ? ' •' : '');
+        pad.appendChild(num);
+
+        if(m){
+          var label = document.createElement('span');
+          label.className = 'label';
+          label.textContent = m.label;
+          pad.appendChild(label);
+        } else {
+          var plus = document.createElement('span');
+          plus.className = 'plus';
+          plus.textContent = mode === 'edit' ? '+' : '';
+          pad.appendChild(plus);
+          var label2 = document.createElement('span');
+          label2.className = 'label';
+          label2.textContent = mode === 'edit' ? 'Add macro' : '';
+          pad.appendChild(label2);
+        }
+
+        if(mode === 'edit'){
+          if(m){
+            pad.draggable = true;
+            pad.addEventListener('dragstart', function(ev){
+              dragFrom = n;
+              pad.classList.add('dragging');
+              if(ev.dataTransfer){
+                ev.dataTransfer.effectAllowed = 'move';
+                try{ ev.dataTransfer.setData('text/plain', String(n)); }catch(e){}
+              }
+            });
+            pad.addEventListener('dragend', function(){
+              dragFrom = null;
+              pad.classList.remove('dragging');
+              Array.prototype.forEach.call(grid.querySelectorAll('.drop-target'), function(el){ el.classList.remove('drop-target'); });
+            });
+          }
+          pad.addEventListener('dragover', function(ev){
+            if(dragFrom !== null && dragFrom !== n){ ev.preventDefault(); pad.classList.add('drop-target'); }
+          });
+          pad.addEventListener('dragleave', function(){ pad.classList.remove('drop-target'); });
+          pad.addEventListener('drop', function(ev){
+            ev.preventDefault();
+            var from = dragFrom;
+            dragFrom = null;
+            pad.classList.remove('drop-target');
+            if(from !== null && from !== n) movePad(from, n);
+          });
+        }
+
+        pad.addEventListener('click', function(){ onPadClick(n); });
+        grid.appendChild(pad);
+      });
+    });
+  }
+
+  function flashCopied(n){
+    var padEl = grid.querySelector('[data-n="' + n + '"]');
+    if(!padEl) return;
+    padEl.classList.add('copied');
+    setTimeout(function(){ padEl.classList.remove('copied'); }, 420);
+  }
+
+  function copyPlainOnly(plainText){
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      return navigator.clipboard.writeText(plainText).then(function(){ return true; }).catch(function(){ return fallbackCopy(plainText); });
+    }
+    return Promise.resolve(fallbackCopy(plainText));
+  }
+
+  function copyText(plainText, htmlText){
+    if(navigator.clipboard && navigator.clipboard.write && typeof ClipboardItem !== 'undefined'){
+      try{
+        var item = new ClipboardItem({
+          'text/plain': new Blob([plainText], { type: 'text/plain' }),
+          'text/html': new Blob([htmlText || plainText], { type: 'text/html' })
+        });
+        return navigator.clipboard.write([item]).then(function(){ return true; }).catch(function(){ return copyPlainOnly(plainText); });
+      }catch(e){
+        return copyPlainOnly(plainText);
+      }
+    }
+    return copyPlainOnly(plainText);
+  }
+
+  function fallbackCopy(text){
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = false;
+    try{ ok = document.execCommand('copy'); }catch(e){ ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  }
+
+  function showOnScreen(n, m){
+    screenNum.textContent = n;
+    screenTitle.textContent = m.label;
+    renderScreenBody(m.plain, m.html, m.ref);
+  }
+
+  function renderScreenBody(plainText, htmlText, ref){
+    screenRight.innerHTML =
+      '<p class="eyebrow">Macro text</p>' +
+      '<div class="body-text" id="screen-body"></div>' +
+      '<div class="screen-footer"><span id="screen-count"></span><span class="copy-flag" id="copy-flag" aria-live="polite">COPIED ✓</span></div>';
+    document.getElementById('screen-body').innerHTML = (typeof htmlText === 'string') ? htmlText : escapeText(plainText).replace(/\n/g, '<br>');
+    document.getElementById('screen-count').textContent = plainText.length + ' chars';
+    if(ref){
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'pin-btn';
+      btn.id = 'pin-btn';
+      btn._ref = ref;
+      syncPinButton(btn);
+      btn.addEventListener('click', function(){ togglePin(ref.bank, ref.slot); });
+      screenRight.querySelector('.screen-footer').appendChild(btn);
+    }
+  }
+
+  function pulseCopyFlag(success){
+    var flag = document.getElementById('copy-flag');
+    if(!flag) return;
+    flag.classList.remove('stale');
+    if(success === false){
+      flag.textContent = 'COPY FAILED, select the text above manually';
+      flag.classList.add('fail');
+    } else {
+      flag.textContent = 'COPIED ✓';
+      flag.classList.remove('fail');
+    }
+    flag.classList.add('show');
+    clearTimeout(copyFlagTimer);
+    copyFlagTimer = setTimeout(function(){ flag.classList.remove('show'); }, success === false ? 2600 : 1400);
+  }
+
+  function onPadClick(n){
+    if(midiLearnMode){
+      midiArmed = { kind: 'pad', value: n };
+      midiStatus.textContent = 'Armed pad ' + n + '. Hit the matching pad on your Maschine.';
+      render();
+      return;
+    }
+    if(mode === 'play'){
+      firePad(n);
+    } else {
+      if(editingPad === n) return;
+      if(editingPad !== null && !confirmDiscardEdit()) return;
+      openEditor(n);
+    }
+  }
+
+  function firstFreeSlot(bank){
+    for(var k = 1; k <= 16; k++){ if(!banks[bank][k]) return k; }
+    return null;
+  }
+
+  function openEditor(n){
+    editingPad = n;
+    editorDirty = false;
+    var existing = macros()[n];
+    var m = existing || { label: '', text: '' };
+    screenNum.textContent = n;
+    screenTitle.textContent = m.label ? 'Editing pad ' + n : 'New macro · pad ' + n;
+
+    var bankOptions = bankOrder.map(function(b){
+      return '<option value="' + b + '"' + (b === currentBank ? ' selected' : '') + '>' + b + ' · ' + escapeText(bankNames[b]) + '</option>';
+    }).join('');
+
+    screenRight.innerHTML =
+      '<p class="eyebrow">Edit macro</p>' +
+      '<div class="editor">' +
+        '<input type="text" id="edit-label" maxlength="40" placeholder="Short label (shown on pad)" value="' + escapeAttr(m.label) + '">' +
+        '<textarea id="edit-text" placeholder="Full macro text">' + escapeText(m.text) + '</textarea>' +
+        '<div class="editor-error" id="edit-error" role="alert" hidden></div>' +
+        (existing
+          ? '<div class="send-row"><span>Send to</span><select id="send-bank" aria-label="Destination bank">' + bankOptions + '</select>' +
+            '<button type="button" id="send-copy">Copy</button><button type="button" id="send-move">Move</button></div>'
+          : '') +
+        '<div class="editor-actions">' +
+          (existing ? '<button class="btn-delete" id="edit-delete" type="button">Delete</button>' : '') +
+          '<button class="btn-cancel" id="edit-cancel" type="button">Cancel</button>' +
+          '<button class="btn-save" id="edit-save" type="button">Save</button>' +
+        '</div>' +
+      '</div>';
+
+    var labelEl = document.getElementById('edit-label');
+    var textEl = document.getElementById('edit-text');
+    var editError = document.getElementById('edit-error');
+    var lintAcked = false;
+
+    function showEditMsg(msg, warn){
+      editError.textContent = msg;
+      editError.classList.toggle('warn', !!warn);
+      editError.hidden = false;
+    }
+    function clearEditError(){
+      editError.hidden = true;
+      editError.textContent = '';
+      editError.classList.remove('warn');
+    }
+    function onEditInput(){ editorDirty = true; lintAcked = false; clearEditError(); }
+    labelEl.addEventListener('input', onEditInput);
+    textEl.addEventListener('input', onEditInput);
+
+    function readFields(){
+      var label = labelEl.value.trim();
+      var text = textEl.value.trim();
+      if(!label || !text){
+        showEditMsg(!label && !text
+          ? 'Add a label and the macro text before saving.'
+          : (!label ? 'Add a short label so the pad has a name.' : 'Add the macro text before saving.'));
+        (!label ? labelEl : textEl).focus();
+        return null;
+      }
+      return { label: label, text: text };
+    }
+    function closeEditor(){
+      editingPad = null;
+      editorDirty = false;
+      render();
+      renderBanks();
+      renderPins();
+      resetScreens();
+    }
+
+    document.getElementById('edit-save').addEventListener('click', function(){
+      var f = readFields();
+      if(!f) return;
+      var hits = lintHits(f.label, f.text);
+      if(hits.length && !lintAcked){
+        lintAcked = true;
+        showEditMsg('Voice check: ' + hits.join(', ') + '. Press Save again to keep it as is.', true);
+        return;
+      }
+      setMacro(currentBank, n, f);
+      persistData();
+      closeEditor();
+    });
+
+    if(existing){
+      document.getElementById('edit-delete').addEventListener('click', function(){
+        var current = macros()[n];
+        if(!current) return;
+        if(!askConfirm('Delete "' + current.label + '"? You can undo it right after.', 'delete:' + currentBank + ':' + n)) return;
+        var label = current.label, b = currentBank;
+        withUndo('Deleted "' + label + '".', function(){
+          clearMacro(b, n);
+          persistData();
+        });
+        closeEditor();
+      });
+
+      function sendTo(move){
+        var f = readFields();
+        if(!f) return;
+        var target = document.getElementById('send-bank').value;
+        if(move && target === currentBank){
+          showEditMsg('Pick a different bank to move it to.');
+          return;
+        }
+        var slot = firstFreeSlot(target);
+        if(slot === null){
+          showEditMsg('Bank ' + target + ' is full. Free up a pad there first.');
+          return;
+        }
+        var srcBank = currentBank;
+        var newLabel = (!move && target === srcBank) ? (f.label + ' copy').slice(0, 40) : f.label;
+        withUndo((move ? 'Moved' : 'Copied') + ' "' + f.label + '" to Bank ' + target + ', pad ' + slot + '.', function(){
+          setMacro(target, slot, { label: newLabel, text: f.text });
+          if(move){
+            clearMacro(srcBank, n);
+            remapRef(refKey(srcBank, n), refKey(target, slot));
+          }
+          persistData();
+        });
+        if(move){ closeEditor(); }
+        else { render(); renderBanks(); }
+      }
+      document.getElementById('send-copy').addEventListener('click', function(){ sendTo(false); });
+      document.getElementById('send-move').addEventListener('click', function(){ sendTo(true); });
+    }
+
+    document.getElementById('edit-cancel').addEventListener('click', function(){
+      editingPad = null;
+      editorDirty = false;
+      render();
+      resetScreens();
+    });
+
+    render();
+  }
+
+  function resetScreens(){
+    lastShownPad = null;
+    fillPending = null;
+    screenNum.textContent = '–';
+    screenTitle.textContent = 'Click a pad to load it';
+    renderScreenBody('Every lit pad copies its full response to your clipboard in one click. Paste straight into the ticket. Switch to Edit to add or change macros.');
+  }
+
+  function escapeAttr(s){ return (s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
+  function escapeText(s){ return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+
+  var modePlayBtn = document.getElementById('mode-play');
+  var modeEditBtn = document.getElementById('mode-edit');
+  var modeCalcBtn = document.getElementById('mode-calc');
+  var calcPanel = document.getElementById('calc-panel');
+  var screensEl = document.querySelector('.screens');
+  var padsRowEl = document.querySelector('.pads-row');
+
+  function updateModeButtons(){
+    modePlayBtn.classList.toggle('active', mode === 'play');
+    modeEditBtn.classList.toggle('active', mode === 'edit');
+    modeCalcBtn.classList.toggle('active', mode === 'calc');
+    modePlayBtn.setAttribute('aria-pressed', mode === 'play' ? 'true' : 'false');
+    modeEditBtn.setAttribute('aria-pressed', mode === 'edit' ? 'true' : 'false');
+    modeCalcBtn.setAttribute('aria-pressed', mode === 'calc' ? 'true' : 'false');
+  }
+
+  function applyModeVisibility(){
+    var isCalc = mode === 'calc';
+    screensEl.hidden = isCalc;
+    padsRowEl.hidden = isCalc;
+    hint.hidden = isCalc;
+    calcPanel.hidden = !isCalc;
+    searchRow.hidden = isCalc;
+    toolsPanel.hidden = isCalc;
+    if(isCalc) closeDialog();
+    renderPins();
+    updatePlaceholderFieldsVisibility();
+  }
+
+  modePlayBtn.addEventListener('click', function(){
+    if(!confirmDiscardEdit()) return;
+    mode = 'play';
+    editingPad = null;
+    updateModeButtons();
+    applyModeVisibility();
+    hint.textContent = 'Play mode · Bank ' + currentBank + ' (' + bankNames[currentBank] + ') · click a pad to copy its macro';
+    resetScreens();
+    render();
+  });
+  modeEditBtn.addEventListener('click', function(){
+    mode = 'edit';
+    updateModeButtons();
+    applyModeVisibility();
+    hint.textContent = 'Edit mode · Bank ' + currentBank + ' · click any pad to write or update its macro';
+    screenTitle.textContent = 'Pick a pad to edit';
+    render();
+  });
+  modeCalcBtn.addEventListener('click', function(){
+    if(!confirmDiscardEdit()) return;
+    mode = 'calc';
+    updateModeButtons();
+    applyModeVisibility();
+    ensureCalcBuilt();
+  });
+
+  document.getElementById('calc-tab-flex').addEventListener('click', function(){
+    document.getElementById('calc-tab-flex').classList.add('active');
+    document.getElementById('calc-tab-flex').setAttribute('aria-selected', 'true');
+    document.getElementById('calc-tab-fp').classList.remove('active');
+    document.getElementById('calc-tab-fp').setAttribute('aria-selected', 'false');
+    document.getElementById('calc-flex').hidden = false;
+    document.getElementById('calc-fp').hidden = true;
+  });
+  document.getElementById('calc-tab-fp').addEventListener('click', function(){
+    document.getElementById('calc-tab-fp').classList.add('active');
+    document.getElementById('calc-tab-fp').setAttribute('aria-selected', 'true');
+    document.getElementById('calc-tab-flex').classList.remove('active');
+    document.getElementById('calc-tab-flex').setAttribute('aria-selected', 'false');
+    document.getElementById('calc-fp').hidden = false;
+    document.getElementById('calc-flex').hidden = true;
+  });
+
+  /* ================= toast, undo, tombstone helpers ================= */
+  var toastEl = document.getElementById('toast');
+  var toastMsg = document.getElementById('toast-msg');
+  var toastUndo = document.getElementById('toast-undo');
+  var toastTimer = null;
+  var toastUndoFn = null;
+
+  function hideToast(){ toastEl.hidden = true; toastUndoFn = null; }
+  // Undo restores a whole snapshot, so it must not outlive any later change or it would erase that change.
+  function invalidateUndo(){ if(toastUndoFn) hideToast(); }
+  function showToast(message, undoFn){
+    toastMsg.textContent = message;
+    toastUndoFn = undoFn || null;
+    toastUndo.hidden = !undoFn;
+    toastEl.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(hideToast, undoFn ? 10000 : 4500);
+  }
+  toastUndo.addEventListener('click', function(){
+    var fn = toastUndoFn;
+    hideToast();
+    if(fn) fn();
+  });
+
+  // In-page 6-second tap-again toast confirmation (sandbox-safe, no blocking browser modals).
+  var pendingConfirm = { key: null, until: 0 };
+  function askConfirm(message, key){
+    var now = Date.now();
+    if(pendingConfirm.key === key && now < pendingConfirm.until){
+      pendingConfirm.key = null;
+      pendingConfirm.until = 0;
+      return true;
+    }
+    pendingConfirm.key = key;
+    pendingConfirm.until = now + 6000;
+    showToast(message + " Tap again within 6 seconds to confirm.");
+    return false;
+  }
+
+  function isDefaultSlot(b, k){ return !!(defaultsByBank[b] && defaultsByBank[b][k]); }
+  function tombstone(b, k){
+    k = String(k);
+    if(isDefaultSlot(b, k) && meta.deleted[b].indexOf(k) === -1) meta.deleted[b].push(k);
+  }
+  function untombstone(b, k){
+    var i = meta.deleted[b].indexOf(String(k));
+    if(i !== -1) meta.deleted[b].splice(i, 1);
+  }
+  function setMacro(b, k, macro){
+    banks[b][k] = { label: macro.label, text: macro.text };
+    untombstone(b, k);
+  }
+  function clearMacro(b, k){
+    delete banks[b][k];
+    tombstone(b, k);
+  }
+  function persistData(){ saveBanks(); saveMeta(); invalidateUndo(); }
+
+  function dayKey(t){
+    var d = new Date(t), mo = d.getMonth() + 1, da = d.getDate();
+    return d.getFullYear() + '-' + (mo < 10 ? '0' : '') + mo + '-' + (da < 10 ? '0' : '') + da;
+  }
+  function recordUsage(bank, slot){
+    var m = banks[bank] && banks[bank][slot];
+    if(!m) return;
+    var key = refKey(bank, slot), u = usage[key], now = Date.now(), day = dayKey(now);
+    if(!u || u.l !== m.label) u = usage[key] = { n: 0, l: m.label, f: now, last: 0, d: {} };
+    u.n++;
+    u.last = now;
+    u.d[day] = (u.d[day] || 0) + 1;
+    var cutoff = dayKey(now - USAGE_KEEP_DAYS * 86400000);
+    Object.keys(u.d).forEach(function(k){ if(k < cutoff) delete u.d[k]; });
+    saveJson(USAGE_KEY, usage);
+  }
+  function remapRef(oldKey, newKey){
+    if(usage[oldKey]){
+      usage[newKey] = usage[oldKey];
+      delete usage[oldKey];
+      saveJson(USAGE_KEY, usage);
+    }
+    pins = pins.map(function(r){ return r === oldKey ? newKey : r; });
+    recents = recents.map(function(r){ return r === oldKey ? newKey : r; });
+    saveJson(PINS_KEY, pins);
+    saveJson(RECENTS_KEY, recents);
+  }
+
+  function snapshotState(){
+    return JSON.stringify({ banks: banks, meta: meta, midi: midiBindings, pins: pins, lint: lintWords });
+  }
+  function restoreState(json){
+    var s;
+    try{ s = JSON.parse(json); }catch(e){ return; }
+    banks = normalizeBanks(s.banks);
+    meta = normalizeMeta(s.meta);
+    midiBindings = sanitizeBindings(s.midi);
+    pins = sanitizeRefs(s.pins, MAX_PINS);
+    if(Array.isArray(s.lint)){
+      lintWords = sanitizeWords(s.lint);
+      saveJson(LINT_KEY, lintWords);
+    }
+    persistData();
+    saveMidiBindings();
+    saveJson(PINS_KEY, pins);
+    refreshAll();
+  }
+  function withUndo(message, mutateFn){
+    var before = snapshotState();
+    mutateFn();
+    showToast(message, function(){
+      restoreState(before);
+      showToast('Undone.');
+    });
+  }
+  function refreshAll(){
+    editingPad = null;
+    editorDirty = false;
+    resetScreens();
+    renderBanks();
+    render();
+    renderPins();
+  }
+
+  /* ================= opener / closer wrapping ================= */
+  var NO_WRAP_BANKS = ['A', 'E'];
+  var WRAP_SOURCES = { opener: 'A:1', openerLong: 'A:2', standard: 'A:10', bad: 'A:15' };
+  var fillPending = null;
+  var lastTemplate = '';
+  var lastFilled = false;
+
+  function macroByKey(key){
+    var p = key.split(':');
+    return (banks[p[0]] && banks[p[0]][p[1]]) || null;
+  }
+  function startsWithGreeting(t){
+    return /^\s*(hi|hey|hello|welcome)\b/i.test(t) || /\bI(?:'m| am) Chase\b/i.test(t.slice(0, 200));
+  }
+  function composeTemplate(bank, slot, m){
+    var body = m.text;
+    if(NO_WRAP_BANKS.indexOf(bank) !== -1) return body;
+    var parts = [];
+    if(wrapPrefs.opener){
+      var o = macroByKey(wrapPrefs.wait === 'long' ? WRAP_SOURCES.openerLong : WRAP_SOURCES.opener);
+      if(o && !startsWithGreeting(body) && body.indexOf(o.text) === -1) parts.push(o.text);
+    }
+    parts.push(body);
+    if(wrapPrefs.closer !== 'none'){
+      var c = macroByKey(WRAP_SOURCES[wrapPrefs.closer]);
+      if(c && body.indexOf(c.text) === -1) parts.push(c.text);
+    }
+    return parts.join('\n\n');
+  }
+
+  var wrapOpenerBtn = document.getElementById('wrap-opener');
+  var wrapCloserBtns = document.querySelectorAll('#wrap-controls [data-closer]');
+  var wrapWaitBtns = document.querySelectorAll('#wrap-controls [data-wait]');
+  var waitSwitch = document.getElementById('wait-switch');
+  function syncWrapUi(){
+    wrapOpenerBtn.setAttribute('aria-pressed', wrapPrefs.opener ? 'true' : 'false');
+    Array.prototype.forEach.call(wrapWaitBtns, function(b){
+      b.setAttribute('aria-pressed', b.getAttribute('data-wait') === wrapPrefs.wait ? 'true' : 'false');
+    });
+    waitSwitch.setAttribute('aria-checked', wrapPrefs.wait === 'long' ? 'true' : 'false');
+    Array.prototype.forEach.call(wrapCloserBtns, function(b){
+      b.setAttribute('aria-pressed', b.getAttribute('data-closer') === wrapPrefs.closer ? 'true' : 'false');
+    });
+  }
+  wrapOpenerBtn.addEventListener('click', function(){
+    wrapPrefs.opener = !wrapPrefs.opener;
+    saveJson(WRAP_KEY, wrapPrefs);
+    syncWrapUi();
+    refreshWrap();
+  });
+  waitSwitch.addEventListener('click', function(){
+    wrapPrefs.wait = wrapPrefs.wait === 'long' ? 'standard' : 'long';
+    saveJson(WRAP_KEY, wrapPrefs);
+    syncWrapUi();
+    refreshWrap();
+  });
+  Array.prototype.forEach.call(wrapWaitBtns, function(b){
+    b.addEventListener('click', function(){
+      wrapPrefs.wait = b.getAttribute('data-wait');
+      saveJson(WRAP_KEY, wrapPrefs);
+      syncWrapUi();
+      refreshWrap();
+    });
+  });
+  Array.prototype.forEach.call(wrapCloserBtns, function(b){
+    b.addEventListener('click', function(){
+      wrapPrefs.closer = b.getAttribute('data-closer');
+      saveJson(WRAP_KEY, wrapPrefs);
+      syncWrapUi();
+      refreshWrap();
+    });
+  });
+
+  /* ================= fill-in blanks ================= */
+  // Blank kinds in a macro's text:
+  //   ___                 plain blank
+  //   [a/b/c]             pick one (3 or more options also offer "Other")
+  //   {{amt:name}}        money amount, formats as $1,234.50
+  //   {{netword:W,D}}     "profit" if amount W minus amount D is zero or more, otherwise "loss"
+  //   {{netamt:W,D}}      the size of W minus D as money
+  //   {{art:name}}        "a" or "an" to match how the amount is spoken ("an $80 refund", "a $50 refund")
+  //   {{pl:name}}         signed profit/loss you type in as Admin shows it (8.65 or -$11.35); prints "profit of $8.65" or "loss of $11.35"
+  var BLANK_RE = /___|\[([^\[\]\/\n]+(?:\/[^\[\]\/\n]+)+)\]|\{\{(amt|netword|netamt|art|pl):([a-z0-9_,]+)\}\}/g;
+
+  function isInputBlank(b){ return b.kind === 'text' || b.kind === 'choice' || b.kind === 'amt' || b.kind === 'pl'; }
+
+  // Plain amount: 8, 8.65, $8.65, 1,250.50. Commas must be real thousands separators and no spaces inside
+  // the number, so a typo like 1,23 or 1 2 is rejected instead of quietly becoming $123 or $12.
+  function parseMoney(str){
+    var t = String(str || '').trim().replace(/^\$\s*/, '');
+    if(!/^(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d*)?$|^\.\d+$/.test(t)) return null;
+    var n = parseFloat(t.replace(/,/g, ''));
+    return isFinite(n) ? n : null;
+  }
+  // "an" when the dollar amount starts with an eight sound: 8, 80-89, 800s, 8,000s, and 11 or 18 as
+  // whole numbers of two digits or 11,000/18,000 style five-digit ones. Everything else is "a".
+  function articleFor(n){
+    var whole = String(Math.floor(n));
+    if(whole.charAt(0) === '8') return 'an';
+    if((whole.length === 2 || whole.length === 5 || whole.length === 8) && (whole.slice(0, 2) === '11' || whole.slice(0, 2) === '18')) return 'an';
+    return 'a';
+  }
+  // Signed amount as Admin shows it: 8.65, $8.65, -$11.35, -11.35, ($11.35). One sign style only:
+  // (-$11.35) and similar mixes return null instead of guessing.
+  function parseSignedMoney(str){
+    var t = String(str || '').trim(), neg = false, inner = t.match(/^\(\s*(.*?)\s*\)$/);
+    if(inner){
+      neg = true;
+      t = inner[1];
+      if(/^[-+]/.test(t)) return null;
+    } else if(t.charAt(0) === '-'){
+      neg = true;
+      t = t.slice(1).trim();
+    } else if(t.charAt(0) === '+'){
+      t = t.slice(1).trim();
+    }
+    var n = parseMoney(t);
+    return n === null ? null : (neg ? -n : n);
+  }
+  function formatMoney(n){
+    return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function snippetWords(str, fromEnd, count){
+    var words = str.replace(/\s+/g, ' ')
+      .replace(/\{\{YEAR\}\}/g, String(new Date().getFullYear()))
+      .replace(/\{\{art:[a-z0-9_]+\}\}/g, 'a')
+      .replace(/___|\{\{[^}]*\}\}/g, '...')
+      .trim().split(' ').filter(Boolean);
+    return (fromEnd ? words.slice(-count) : words.slice(0, count)).join(' ');
+  }
+
+  function findBlanks(template){
+    var out = [], m;
+    BLANK_RE.lastIndex = 0;
+    while((m = BLANK_RE.exec(template)) !== null){
+      var b = { index: m.index, length: m[0].length, kind: 'text', options: null, name: null, args: null };
+      if(m[1]){
+        b.kind = 'choice';
+        b.options = m[1].split('/').map(function(o){ return o.trim(); });
+      } else if(m[2]){
+        b.kind = m[2];
+        if(m[2] === 'amt' || m[2] === 'art' || m[2] === 'pl') b.name = m[3];
+        else b.args = m[3].split(',');
+      }
+      out.push(b);
+    }
+    // A name used twice ({{amt:x}} ... {{amt:x}}) is one answer, so the form asks for it once.
+    var firstByName = {};
+    out.forEach(function(b, i){
+      if(b.kind !== 'amt' && b.kind !== 'pl') return;
+      var key = b.kind + ':' + b.name;
+      if(firstByName[key] === undefined) firstByName[key] = i;
+      else { b.dupOf = firstByName[key]; }
+    });
+    out.forEach(function(b, i){
+      // a/an tokens read as plain text ("a"), so they should not cut a field's surrounding context short
+      var prev = null, next = null, j;
+      for(j = i - 1; j >= 0; j--){ if(out[j].kind !== 'art'){ prev = out[j]; break; } }
+      for(j = i + 1; j < out.length; j++){ if(out[j].kind !== 'art'){ next = out[j]; break; } }
+      var prevEnd = prev ? prev.index + prev.length : 0;
+      var nextStart = next ? next.index : template.length;
+      b.before = snippetWords(template.slice(Math.max(prevEnd, b.index - 80), b.index), true, 5);
+      b.after = snippetWords(template.slice(b.index + b.length, Math.min(nextStart, b.index + b.length + 60)), false, 4);
+    });
+    return out;
+  }
+
+  // values[i] is the raw text for input blank i. Empty inputs leave the original blank in place so it
+  // is obvious what is still missing; computed pieces only appear once both amounts are valid.
+  function fillTemplate(template, blanks, values){
+    var money = {};
+    blanks.forEach(function(b, i){
+      if(b.kind === 'amt') money[b.name] = parseMoney(values[i]);
+    });
+    var filled = template;
+    for(var i = blanks.length - 1; i >= 0; i--){
+      var b = blanks[i], v = String(values[i] || '').trim(), rep = null;
+      if(b.kind === 'amt'){
+        var n = money[b.name];
+        rep = (n !== null && n !== undefined) ? formatMoney(n) : (v || '$___');
+      } else if(b.kind === 'pl'){
+        var pn = parseSignedMoney(v);
+        rep = pn !== null ? (pn >= 0 ? 'profit of ' : 'loss of ') + formatMoney(Math.abs(pn)) : (v || 'profit/loss of $___');
+      } else if(b.kind === 'art'){
+        var an = money[b.name];
+        rep = (an !== null && an !== undefined) ? articleFor(an) : 'a';
+      } else if(b.kind === 'netword' || b.kind === 'netamt'){
+        var w = b.args && b.args.length === 2 ? money[b.args[0]] : null;
+        var d = b.args && b.args.length === 2 ? money[b.args[1]] : null;
+        if(w !== null && w !== undefined && d !== null && d !== undefined){
+          var net = w - d;
+          rep = b.kind === 'netword' ? (net >= 0 ? 'profit' : 'loss') : formatMoney(Math.abs(net));
+        } else {
+          rep = b.kind === 'netword' ? '___' : '$___';
+        }
+      } else {
+        rep = v || null;
+      }
+      if(rep !== null) filled = filled.slice(0, b.index) + rep + filled.slice(b.index + b.length);
+    }
+    return filled;
+  }
+
+  function openFillForm(n, m, template, blanks){
+    fillPending = { n: n, bank: currentBank };
+    lastShownPad = null;
+    screenNum.textContent = n;
+    screenTitle.textContent = m.label;
+    screenRight.innerHTML = '';
+
+    var eyebrow = document.createElement('p');
+    eyebrow.className = 'eyebrow';
+    eyebrow.textContent = 'Fill in the blanks';
+    var form = document.createElement('div');
+    form.className = 'fill-form';
+    var readers = [];
+    var previewBody = document.createElement('div');
+    previewBody.className = 'fill-preview';
+    previewBody.setAttribute('aria-live', 'polite');
+    var warnEl = document.createElement('div');
+    warnEl.className = 'editor-error warn';
+    warnEl.setAttribute('role', 'alert');
+    warnEl.hidden = true;
+    var controls = [];
+    var warned = false;
+    var copyBtn;
+
+    function currentValues(){
+      return readers.map(function(fn){ return fn ? fn() : ''; });
+    }
+    function updatePreview(){
+      previewBody.textContent = resolveText(fillTemplate(template, blanks, currentValues()));
+      warned = false;
+      warnEl.hidden = true;
+      if(copyBtn) copyBtn.textContent = 'Copy';
+    }
+    // Indexes of blanks that are empty, or an amount that is not a valid number.
+    function problemBlanks(){
+      var vals = currentValues(), bad = [];
+      blanks.forEach(function(b, i){
+        if(!isInputBlank(b)) return;
+        var v = String(vals[i] || '').trim();
+        if(b.dupOf !== undefined) return;
+        if(!v || (b.kind === 'amt' && parseMoney(v) === null) || (b.kind === 'pl' && parseSignedMoney(v) === null)) bad.push(i);
+      });
+      return bad;
+    }
+    function commit(){
+      var bad = problemBlanks();
+      if(bad.length && !warned){
+        warned = true;
+        warnEl.textContent = (bad.length === 1 ? '1 blank is' : bad.length + ' blanks are') + ' empty or not a valid amount. Press Copy again to copy anyway.';
+        warnEl.hidden = false;
+        copyBtn.textContent = 'Copy anyway';
+        if(controls[bad[0]]) controls[bad[0]].focus();
+        return;
+      }
+      var filled = fillTemplate(template, blanks, currentValues());
+      fillPending = null;
+      finishFire(n, m, filled, true);
+    }
+    function cancel(){
+      fillPending = null;
+      resetScreens();
+    }
+    function wireKeys(el){
+      el.addEventListener('keydown', function(ev){
+        if(ev.key === 'Escape'){ ev.preventDefault(); cancel(); }
+        else if(ev.key === 'Enter' && el.tagName === 'INPUT'){ ev.preventDefault(); commit(); }
+      });
+      el.addEventListener('input', updatePreview);
+      el.addEventListener('change', updatePreview);
+    }
+
+    var firstControl = null;
+    blanks.forEach(function(b, i){
+      if(!isInputBlank(b)){ readers.push(null); controls.push(null); return; }
+      if(b.dupOf !== undefined){ readers.push(readers[b.dupOf]); controls.push(controls[b.dupOf]); return; }
+      var row = document.createElement('label');
+      row.className = 'fill-row';
+      var before = document.createElement('span');
+      before.textContent = b.before;
+      var ctrl, other = null, reader;
+      if(b.kind === 'choice'){
+        ctrl = document.createElement('select');
+        var ph = document.createElement('option');
+        ph.value = '';
+        ph.textContent = 'Choose';
+        ctrl.appendChild(ph);
+        b.options.forEach(function(o){
+          var op = document.createElement('option');
+          op.value = o;
+          op.textContent = o;
+          ctrl.appendChild(op);
+        });
+        if(b.options.length >= 3){
+          var oo = document.createElement('option');
+          oo.value = '__other__';
+          oo.textContent = 'Other...';
+          ctrl.appendChild(oo);
+          other = document.createElement('input');
+          other.type = 'text';
+          other.placeholder = 'Type it';
+          other.hidden = true;
+          other.autocomplete = 'off';
+          other.setAttribute('aria-label', 'Other value for blank ' + (i + 1));
+          ctrl.addEventListener('change', function(){
+            other.hidden = ctrl.value !== '__other__';
+            if(!other.hidden) other.focus();
+          });
+          wireKeys(other);
+        }
+        reader = function(){ return (ctrl.value === '__other__' && other) ? other.value : ctrl.value; };
+      } else {
+        ctrl = document.createElement('input');
+        ctrl.type = 'text';
+        ctrl.placeholder = b.kind === 'amt' ? '$0.00' : (b.kind === 'pl' ? '-$0.00 or $0.00' : '___');
+        ctrl.autocomplete = 'off';
+        reader = function(){ return ctrl.value; };
+      }
+      ctrl.setAttribute('aria-label', 'Blank ' + (i + 1) + ': ' + b.before + ' ... ' + b.after);
+      wireKeys(ctrl);
+      var after = document.createElement('span');
+      after.textContent = b.after;
+      row.appendChild(before);
+      row.appendChild(ctrl);
+      if(other) row.appendChild(other);
+      row.appendChild(after);
+      form.appendChild(row);
+      readers.push(reader);
+      controls.push(ctrl);
+      if(!firstControl) firstControl = ctrl;
+    });
+
+    var previewLabel = document.createElement('p');
+    previewLabel.className = 'eyebrow';
+    previewLabel.style.marginTop = '8px';
+    previewLabel.textContent = 'Preview';
+
+    var actions = document.createElement('div');
+    actions.className = 'fill-actions';
+    var cancelBtn = document.createElement('button');
+    cancelBtn.type = 'button';
+    cancelBtn.className = 'btn-cancel';
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.addEventListener('click', cancel);
+    copyBtn = document.createElement('button');
+    copyBtn.type = 'button';
+    copyBtn.className = 'btn-save';
+    copyBtn.textContent = 'Copy';
+    copyBtn.addEventListener('click', commit);
+    actions.appendChild(cancelBtn);
+    actions.appendChild(copyBtn);
+
+    screenRight.appendChild(eyebrow);
+    screenRight.appendChild(form);
+    screenRight.appendChild(previewLabel);
+    screenRight.appendChild(previewBody);
+    screenRight.appendChild(warnEl);
+    screenRight.appendChild(actions);
+    updatePreview();
+    if(firstControl) firstControl.focus();
+  }
+
+  /* ================= firing a pad ================= */
+  function finishFire(n, m, template, filled){
+    lastShownPad = n;
+    lastTemplate = template;
+    lastFilled = !!filled;
+    var plain = resolveText(template);
+    var html = resolveHtml(template);
+    showOnScreen(n, { label: m.label, plain: plain, html: html, ref: { bank: currentBank, slot: n } });
+    var bankAtCopy = currentBank;
+    copyText(plain, html).then(function(ok){
+      pulseCopyFlag(ok);
+      if(ok){
+        flashCopied(n);
+        recordUsage(bankAtCopy, n);
+      }
+    });
+  }
+
+  function firePad(n){
+    var m = macros()[n];
+    if(!m) return;
+    recordRecent(currentBank, n);
+    var template = composeTemplate(currentBank, n, m);
+    var blanks = findBlanks(template);
+    if(blanks.some(isInputBlank)){
+      openFillForm(n, m, template, blanks);
+      return;
+    }
+    finishFire(n, m, template, false);
+  }
+
+  function markStale(){
+    var flag = document.getElementById('copy-flag');
+    if(!flag) return;
+    flag.textContent = 'PREVIEW CHANGED, CLICK THE PAD TO COPY';
+    flag.classList.remove('fail');
+    flag.classList.add('show', 'stale');
+    clearTimeout(copyFlagTimer);
+  }
+  function renderPreviewOnly(){
+    var m = macros()[lastShownPad];
+    if(!m) return;
+    showOnScreen(lastShownPad, { label: m.label, plain: resolveText(lastTemplate), html: resolveHtml(lastTemplate), ref: { bank: currentBank, slot: lastShownPad } });
+    markStale();
+  }
+  function refreshResolved(){
+    if(mode !== 'play' || lastShownPad === null || fillPending) return;
+    renderPreviewOnly();
+  }
+  function refreshWrap(){
+    if(mode !== 'play' || lastShownPad === null || fillPending || lastFilled) return;
+    var m = macros()[lastShownPad];
+    if(!m) return;
+    lastTemplate = composeTemplate(currentBank, lastShownPad, m);
+    renderPreviewOnly();
+  }
+
+  /* ================= pins and recents ================= */
+  var pinsRow = document.getElementById('pins-row');
+  var pinsChips = document.getElementById('pins-chips');
+
+  function refKey(bank, slot){ return bank + ':' + slot; }
+  function parseRef(r){ var p = r.split(':'); return { bank: p[0], slot: Number(p[1]) }; }
+  function macroAt(r){ var x = parseRef(r); return (banks[x.bank] && banks[x.bank][x.slot]) || null; }
+  function isPinned(bank, slot){ return pins.indexOf(refKey(bank, slot)) !== -1; }
+
+  function syncPinButton(btn){
+    var ref = btn._ref;
+    var on = isPinned(ref.bank, ref.slot);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.setAttribute('aria-label', on ? 'Unpin this macro' : 'Pin this macro');
+    btn.textContent = on ? 'Pinned' : 'Pin';
+  }
+  function togglePin(bank, slot){
+    var key = refKey(bank, slot), i = pins.indexOf(key);
+    if(i !== -1){
+      pins.splice(i, 1);
+    } else {
+      pins = pins.filter(function(r){ return !!macroAt(r); });
+      if(pins.length >= MAX_PINS){
+        showToast('You can pin up to ' + MAX_PINS + ' macros. Unpin one first.');
+        return;
+      }
+      pins.push(key);
+    }
+    saveJson(PINS_KEY, pins);
+    invalidateUndo();
+    renderPins();
+    var pb = document.getElementById('pin-btn');
+    if(pb && pb._ref) syncPinButton(pb);
+  }
+  function recordRecent(bank, slot){
+    var key = refKey(bank, slot);
+    recents = recents.filter(function(r){ return r !== key; });
+    recents.unshift(key);
+    recents = recents.slice(0, MAX_RECENTS);
+    saveJson(RECENTS_KEY, recents);
+  }
+  function renderPins(){
+    var valid = pins.filter(function(r){ return !!macroAt(r); });
+    pinsChips.innerHTML = '';
+    valid.forEach(function(r){
+      var ref = parseRef(r), m = macroAt(r);
+      var chip = document.createElement('span');
+      chip.className = 'pin-chip';
+      chip.style.setProperty('--chip-core', bankColors[ref.bank].core);
+      var go = document.createElement('button');
+      go.type = 'button';
+      go.className = 'pin-go';
+      go.title = 'Copy: ' + m.label;
+      var bk = document.createElement('span');
+      bk.className = 'pin-bank';
+      bk.textContent = ref.bank;
+      var lb = document.createElement('span');
+      lb.textContent = m.label;
+      go.appendChild(bk);
+      go.appendChild(lb);
+      go.addEventListener('click', function(){ activateMacro(ref.bank, ref.slot); });
+      var x = document.createElement('button');
+      x.type = 'button';
+      x.className = 'pin-x';
+      x.textContent = '×';
+      x.setAttribute('aria-label', 'Unpin ' + m.label);
+      x.addEventListener('click', function(){ togglePin(ref.bank, ref.slot); });
+      chip.appendChild(go);
+      chip.appendChild(x);
+      pinsChips.appendChild(chip);
+    });
+    pinsRow.hidden = valid.length === 0 || mode === 'calc';
+  }
+
+  function activateMacro(bank, slot){
+    if(mode === 'calc') return;
+    if(bank !== currentBank){
+      switchBank(bank);
+      if(currentBank !== bank) return;
+    }
+    if(mode === 'edit'){
+      if(editingPad !== null && editingPad !== slot && !confirmDiscardEdit()) return;
+      openEditor(slot);
+    } else {
+      firePad(slot);
+    }
+  }
+
+  /* ================= global search ================= */
+  var searchRow = document.getElementById('search-row');
+  var searchInput = document.getElementById('search-input');
+  var searchResultsEl = document.getElementById('search-results');
+  var searchItems = [];
+  var searchIndex = 0;
+
+  function searchMacros(q){
+    var words = q.toLowerCase().split(/\s+/).filter(Boolean);
+    if(!words.length) return [];
+    var found = [];
+    bankOrder.forEach(function(b){
+      Object.keys(banks[b]).forEach(function(k){
+        var m = banks[b][k];
+        var label = m.label.toLowerCase(), text = m.text.toLowerCase(), bname = bankNames[b].toLowerCase();
+        var score = 0, ok = true;
+        words.forEach(function(w){
+          var inLabel = label.indexOf(w) !== -1, inBank = bname.indexOf(w) !== -1, inText = text.indexOf(w) !== -1;
+          if(!inLabel && !inBank && !inText){ ok = false; return; }
+          score += inLabel ? 3 : (inBank ? 2 : 1);
+          if(label.indexOf(w) === 0) score += 2;
+        });
+        if(ok) found.push({ bank: b, slot: Number(k), score: score });
+      });
+    });
+    found.sort(function(a, b){ return b.score - a.score || (a.bank < b.bank ? -1 : a.bank > b.bank ? 1 : 0) || a.slot - b.slot; });
+    return found.slice(0, 8);
+  }
+  function snippetAround(text, words){
+    var t = text.replace(/\s+/g, ' '), lower = t.toLowerCase(), pos = -1;
+    for(var i = 0; i < words.length && pos === -1; i++) pos = lower.indexOf(words[i]);
+    var start = pos > 30 ? pos - 30 : 0;
+    return (start > 0 ? '...' : '') + t.slice(start, start + 90);
+  }
+  function closeSearch(){
+    searchResultsEl.hidden = true;
+    searchInput.setAttribute('aria-expanded', 'false');
+    searchInput.removeAttribute('aria-activedescendant');
+  }
+  function paintSearchSelection(){
+    Array.prototype.forEach.call(searchResultsEl.querySelectorAll('.search-item'), function(el, i){
+      var on = i === searchIndex;
+      el.classList.toggle('selected', on);
+      el.setAttribute('aria-selected', on ? 'true' : 'false');
+      if(on){
+        searchInput.setAttribute('aria-activedescendant', el.id);
+        if(el.scrollIntoView) el.scrollIntoView({ block: 'nearest' });
+      }
+    });
+  }
+  function renderSearch(){
+    var q = searchInput.value.trim();
+    var words = q.toLowerCase().split(/\s+/).filter(Boolean);
+    var list;
+    searchResultsEl.innerHTML = '';
+    if(q){
+      list = searchMacros(q);
+    } else {
+      list = recents.filter(function(r){ return !!macroAt(r); }).map(parseRef);
+      var heading = document.createElement('div');
+      heading.className = 'search-label';
+      heading.textContent = 'Recent';
+      searchResultsEl.appendChild(heading);
+    }
+    searchItems = list;
+    if(searchIndex >= list.length) searchIndex = 0;
+    if(!list.length){
+      var empty = document.createElement('div');
+      empty.className = 'search-empty';
+      empty.textContent = q ? 'No macros match "' + q + '".' : 'Nothing copied yet. Search by name or by what the macro says.';
+      searchResultsEl.appendChild(empty);
+    }
+    list.forEach(function(ref, i){
+      var m = banks[ref.bank][ref.slot];
+      var row = document.createElement('div');
+      row.className = 'search-item';
+      row.id = 'search-opt-' + i;
+      row.setAttribute('role', 'option');
+      var chip = document.createElement('span');
+      chip.className = 'search-chip';
+      chip.style.setProperty('--chip-core', bankColors[ref.bank].core);
+      chip.textContent = ref.bank;
+      var title = document.createElement('span');
+      title.className = 'search-title';
+      title.textContent = m.label;
+      var snip = document.createElement('span');
+      snip.className = 'search-snippet';
+      snip.textContent = snippetAround(m.text, words);
+      row.appendChild(chip);
+      row.appendChild(title);
+      row.appendChild(snip);
+      row.addEventListener('mousedown', function(ev){ ev.preventDefault(); });
+      row.addEventListener('click', function(){ chooseSearch(i); });
+      searchResultsEl.appendChild(row);
+    });
+    searchResultsEl.hidden = false;
+    searchInput.setAttribute('aria-expanded', 'true');
+    paintSearchSelection();
+  }
+  function chooseSearch(i){
+    var ref = searchItems[i];
+    if(!ref) return;
+    searchInput.value = '';
+    closeSearch();
+    searchInput.blur();
+    activateMacro(ref.bank, ref.slot);
+  }
+  searchInput.addEventListener('focus', function(){ searchIndex = 0; renderSearch(); });
+  searchInput.addEventListener('input', function(){ searchIndex = 0; renderSearch(); });
+  searchInput.addEventListener('blur', closeSearch);
+  searchInput.addEventListener('keydown', function(ev){
+    if(ev.key === 'ArrowDown'){
+      ev.preventDefault();
+      if(searchItems.length){ searchIndex = (searchIndex + 1) % searchItems.length; paintSearchSelection(); }
+    } else if(ev.key === 'ArrowUp'){
+      ev.preventDefault();
+      if(searchItems.length){ searchIndex = (searchIndex - 1 + searchItems.length) % searchItems.length; paintSearchSelection(); }
+    } else if(ev.key === 'Enter'){
+      ev.preventDefault();
+      chooseSearch(searchIndex);
+    } else if(ev.key === 'Escape'){
+      ev.preventDefault();
+      searchInput.value = '';
+      closeSearch();
+      searchInput.blur();
+    }
+  });
+  document.addEventListener('keydown', function(ev){
+    if(ev.key !== '/' || ev.ctrlKey || ev.metaKey || ev.altKey || mode === 'calc') return;
+    var t = ev.target, tag = t && t.tagName;
+    if(tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (t && t.isContentEditable)) return;
+    ev.preventDefault();
+    searchInput.focus();
+    searchInput.select();
+  });
+
+  /* ================= voice check ================= */
+  function escapeRegExp(str){ return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+  function lintHits(label, text){
+    var hay = label + '\n' + text, hits = [];
+    if(hay.indexOf(String.fromCharCode(8212)) !== -1) hits.push('em dash');
+    lintWords.forEach(function(w){
+      if(new RegExp('(^|[^a-z0-9])' + escapeRegExp(w) + '($|[^a-z0-9])', 'i').test(hay)) hits.push('"' + w + '"');
+    });
+    return hits;
+  }
+
+  /* ================= data tools dialog ================= */
+  var toolsPanel = document.getElementById('tools-panel');
+  var toolsDialog = document.getElementById('tools-dialog');
+
+  function closeDialog(){ toolsDialog.hidden = true; toolsDialog.innerHTML = ''; }
+  function dialogShell(title){
+    toolsDialog.innerHTML = '';
+    var h = document.createElement('h3');
+    h.id = 'tools-dialog-title';
+    h.textContent = title;
+    toolsDialog.appendChild(h);
+    toolsDialog.hidden = false;
+  }
+  function dlgP(text){ var p = document.createElement('p'); p.textContent = text; return p; }
+  function dlgBtn(text, fn){ var b = document.createElement('button'); b.type = 'button'; b.textContent = text; b.addEventListener('click', fn); return b; }
+  function dlgMsg(){ var d = document.createElement('div'); d.className = 'dialog-msg'; d.setAttribute('role', 'status'); return d; }
+  function dlgActions(){ var d = document.createElement('div'); d.className = 'dialog-actions'; return d; }
+
+  function buildExport(){
+    return {
+      app: 'macro-pad',
+      schema: 1,
+      exportedAt: new Date().toISOString(),
+      banks: banks,
+      deleted: meta.deleted,
+      midiBindings: midiBindings,
+      pins: pins,
+      voiceWords: lintWords,
+      usage: usage
+    };
+  }
+  function applyImport(obj){
+    if(!obj || typeof obj !== 'object' || !obj.banks || typeof obj.banks !== 'object' || Array.isArray(obj.banks)){
+      return { ok: false, message: 'That does not look like a Macro Pad backup.' };
+    }
+    var before = snapshotState();
+    var newBanks = normalizeBanks(obj.banks);
+    var newMeta = normalizeMeta({ deleted: obj.deleted });
+    if(!(obj.deleted && typeof obj.deleted === 'object')){
+      bankOrder.forEach(function(b){
+        Object.keys(defaultsByBank[b] || {}).forEach(function(k){
+          if(!newBanks[b][k] && DEFAULTS_ADDED_AFTER_FREEZE.indexOf(b + ':' + k) === -1 && newMeta.deleted[b].indexOf(k) === -1) newMeta.deleted[b].push(k);
+        });
+      });
+    }
+    mergeDefaults(newBanks, newMeta);
+    banks = newBanks;
+    meta = newMeta;
+    midiBindings = sanitizeBindings(obj.midiBindings);
+    pins = sanitizeRefs(obj.pins, MAX_PINS);
+    if(Array.isArray(obj.voiceWords)) lintWords = sanitizeWords(obj.voiceWords);
+    var usageBefore = JSON.stringify(usage);
+    if(obj.usage && typeof obj.usage === 'object'){
+      usage = sanitizeUsage(obj.usage);
+      saveJson(USAGE_KEY, usage);
+    }
+    persistData();
+    saveMidiBindings();
+    saveJson(PINS_KEY, pins);
+    saveJson(LINT_KEY, lintWords);
+    refreshAll();
+    var count = 0;
+    bankOrder.forEach(function(b){ count += Object.keys(banks[b]).length; });
+    return { ok: true, before: before, usageBefore: usageBefore, message: 'Imported ' + count + ' macros and ' + Object.keys(midiBindings).length + ' MIDI mappings.' };
+  }
+
+  var canDownload = location.protocol === 'file:' || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+
+  function openExportDialog(){
+    dialogShell('Export backup');
+    toolsDialog.appendChild(dlgP('Includes every macro, your MIDI mappings, pins, voice-check words, and usage counts. Player name and Socure link are left out on purpose.' + (canDownload ? '' : ' Downloads are not available in this view, so use Copy and paste it into a file.')));
+    var ta = document.createElement('textarea');
+    ta.readOnly = true;
+    ta.value = JSON.stringify(buildExport(), null, 2);
+    ta.setAttribute('aria-label', 'Backup JSON');
+    var msg = dlgMsg();
+    var actions = dlgActions();
+    actions.appendChild(dlgBtn('Copy', function(){
+      copyPlainOnly(ta.value).then(function(ok){
+        msg.classList.toggle('err', !ok);
+        msg.textContent = ok ? 'Copied to your clipboard.' : 'Copy failed. Select the text above and copy it manually.';
+      });
+    }));
+    if(canDownload) actions.appendChild(dlgBtn('Download file', function(){
+      try{
+        var blob = new Blob([ta.value], { type: 'application/json' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'macro-pad-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+        msg.classList.remove('err');
+        msg.textContent = 'Download started. If nothing downloads here, use Copy instead.';
+      }catch(e){
+        msg.classList.add('err');
+        msg.textContent = 'Download is blocked here. Use Copy instead.';
+      }
+    }));
+    actions.appendChild(dlgBtn('Close', closeDialog));
+    toolsDialog.appendChild(ta);
+    toolsDialog.appendChild(msg);
+    toolsDialog.appendChild(actions);
+  }
+
+  function openImportDialog(){
+    dialogShell('Import backup');
+    toolsDialog.appendChild(dlgP('Paste a backup below or choose a file. Importing replaces all macros, MIDI mappings, and pins. You can undo it right after.'));
+    var ta = document.createElement('textarea');
+    ta.placeholder = 'Paste backup JSON here';
+    ta.setAttribute('aria-label', 'Backup JSON to import');
+    var file = document.createElement('input');
+    file.type = 'file';
+    file.accept = 'application/json,.json';
+    file.hidden = true;
+    var msg = dlgMsg();
+    file.addEventListener('change', function(){
+      var f = file.files && file.files[0];
+      if(!f) return;
+      var reader = new FileReader();
+      reader.onload = function(){ ta.value = String(reader.result || ''); msg.classList.remove('err'); msg.textContent = 'File loaded. Press Apply import to use it.'; };
+      reader.onerror = function(){ msg.classList.add('err'); msg.textContent = 'Could not read that file.'; };
+      reader.readAsText(f);
+    });
+    var actions = dlgActions();
+    actions.appendChild(dlgBtn('Choose file', function(){ file.click(); }));
+    actions.appendChild(dlgBtn('Apply import', function(){
+      var obj;
+      try{ obj = JSON.parse(ta.value); }catch(e){
+        msg.classList.add('err');
+        msg.textContent = 'That is not valid JSON. Paste the full backup text.';
+        return;
+      }
+      if(!obj || typeof obj !== 'object' || !obj.banks){
+        msg.classList.add('err');
+        msg.textContent = 'That does not look like a Macro Pad backup.';
+        return;
+      }
+      if(!askConfirm('Replace all macros, MIDI mappings, pins, and usage counts with this backup?', 'import')) return;
+      var res = applyImport(obj);
+      if(!res.ok){ msg.classList.add('err'); msg.textContent = res.message; return; }
+      closeDialog();
+      showToast(res.message, function(){
+        restoreState(res.before);
+        try{ usage = sanitizeUsage(JSON.parse(res.usageBefore)); }catch(e){}
+        saveJson(USAGE_KEY, usage);
+        showToast('Import undone.');
+      });
+    }));
+    actions.appendChild(dlgBtn('Close', closeDialog));
+    toolsDialog.appendChild(ta);
+    toolsDialog.appendChild(file);
+    toolsDialog.appendChild(msg);
+    toolsDialog.appendChild(actions);
+  }
+
+  function openVoiceDialog(){
+    dialogShell('Voice check');
+    toolsDialog.appendChild(dlgP('Flags em dashes plus any words or phrases below, one per line or separated by commas. It warns when you save a macro and never blocks you.'));
+    var ta = document.createElement('textarea');
+    ta.value = lintWords.join('\n');
+    ta.style.minHeight = '80px';
+    ta.setAttribute('aria-label', 'Words and phrases to flag');
+    var msg = dlgMsg();
+    var list = document.createElement('div');
+    list.className = 'dialog-list';
+    function readWords(){ return sanitizeWords(ta.value.split(/[\n,]+/)); }
+    var actions = dlgActions();
+    actions.appendChild(dlgBtn('Save words', function(){
+      lintWords = readWords();
+      saveJson(LINT_KEY, lintWords);
+      invalidateUndo();
+      msg.classList.remove('err');
+      msg.textContent = 'Saved ' + lintWords.length + ' words.';
+    }));
+    actions.appendChild(dlgBtn('Reset to starter list', function(){
+      lintWords = LINT_DEFAULT_WORDS.slice();
+      saveJson(LINT_KEY, lintWords);
+      invalidateUndo();
+      ta.value = lintWords.join('\n');
+      msg.classList.remove('err');
+      msg.textContent = 'Starter list restored.';
+    }));
+    actions.appendChild(dlgBtn('Scan all macros', function(){
+      lintWords = readWords();
+      saveJson(LINT_KEY, lintWords);
+      invalidateUndo();
+      list.innerHTML = '';
+      var total = 0, flagged = 0;
+      bankOrder.forEach(function(b){
+        Object.keys(banks[b]).sort(function(x, y){ return Number(x) - Number(y); }).forEach(function(k){
+          total++;
+          var m = banks[b][k], hits = lintHits(m.label, m.text);
+          if(!hits.length) return;
+          flagged++;
+          var row = document.createElement('button');
+          row.type = 'button';
+          row.textContent = 'Bank ' + b + ', pad ' + k + ' "' + m.label + '": ' + hits.join(', ');
+          row.addEventListener('click', function(){ jumpToEdit(b, Number(k)); });
+          list.appendChild(row);
+        });
+      });
+      msg.classList.remove('err');
+      msg.textContent = flagged ? flagged + ' of ' + total + ' macros flagged. Click one to edit it.' : 'No flags across ' + total + ' macros.';
+    }));
+    actions.appendChild(dlgBtn('Close', closeDialog));
+    toolsDialog.appendChild(ta);
+    toolsDialog.appendChild(actions);
+    toolsDialog.appendChild(msg);
+    toolsDialog.appendChild(list);
+  }
+
+  function jumpToEdit(bank, slot){
+    if(mode !== 'edit'){
+      if(!confirmDiscardEdit()) return;
+      mode = 'edit';
+      updateModeButtons();
+      applyModeVisibility();
+      hint.textContent = 'Edit mode · Bank ' + currentBank + ' · click any pad to write or update its macro';
+    }
+    if(bank !== currentBank){
+      switchBank(bank);
+      if(currentBank !== bank) return;
+    }
+    render();
+    openEditor(slot);
+  }
+
+  function openUsageDialog(){
+    dialogShell('Usage');
+    toolsDialog.appendChild(dlgP('Counts each time a macro is copied from the pad. It lives only in this browser and keeps just the pad number, its name, and a tally. It never saves macro text or anything you type into a fill-in form. Banks A and E are left out of the not-copied list because the Opener and Closer buttons add those macros without counting them.'));
+    var range = 'all';
+    var seg = document.createElement('div');
+    seg.className = 'wrap-seg';
+    seg.setAttribute('role', 'group');
+    seg.setAttribute('aria-label', 'Time range');
+    var segBtns = {};
+    [['all', 'All time'], ['30', 'Last 30 days']].forEach(function(o){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = o[1];
+      b.addEventListener('click', function(){ range = o[0]; draw(); });
+      segBtns[o[0]] = b;
+      seg.appendChild(b);
+    });
+    var summary = dlgMsg();
+    var list = document.createElement('div');
+    list.className = 'dialog-list';
+    list.style.maxHeight = '240px';
+    var unusedNote = document.createElement('div');
+    unusedNote.className = 'usage-note';
+    var msg = dlgMsg();
+
+    function countFor(u){
+      if(range === 'all') return u.n;
+      var cutoff = dayKey(Date.now() - 29 * 86400000), total = 0;
+      Object.keys(u.d).forEach(function(day){ if(day >= cutoff) total += u.d[day]; });
+      return total;
+    }
+    function agoText(ts){
+      if(!ts) return '';
+      var days = Math.round((new Date(dayKey(Date.now())) - new Date(dayKey(ts))) / 86400000);
+      if(days <= 0) return 'today';
+      if(days === 1) return 'yesterday';
+      if(days < 31) return days + ' days ago';
+      return dayKey(ts);
+    }
+    function draw(){
+      segBtns.all.setAttribute('aria-pressed', range === 'all' ? 'true' : 'false');
+      segBtns['30'].setAttribute('aria-pressed', range === '30' ? 'true' : 'false');
+      var rows = [], seen = {}, totalCopies = 0, earliest = 0;
+      Object.keys(usage).forEach(function(key){
+        var p = key.split(':'), m = banks[p[0]] && banks[p[0]][p[1]], u = usage[key];
+        if(!m || u.l !== m.label) return;
+        seen[key] = true;
+        var c = countFor(u);
+        if(u.f && (!earliest || u.f < earliest)) earliest = u.f;
+        if(c > 0){ rows.push({ key: key, bank: p[0], slot: p[1], label: m.label, count: c, last: u.last }); totalCopies += c; }
+      });
+      rows.sort(function(a, b){ return b.count - a.count || b.last - a.last; });
+      list.innerHTML = '';
+      rows.forEach(function(r, i){
+        var row = document.createElement('div');
+        row.className = 'usage-row';
+        [['usage-rank', String(i + 1)], ['usage-ref', r.bank + r.slot], ['usage-name', r.label], ['usage-count', r.count + (r.count === 1 ? ' copy' : ' copies')], ['usage-last', agoText(r.last)]].forEach(function(c){
+          var sp = document.createElement('span');
+          sp.className = c[0];
+          sp.textContent = c[1];
+          row.appendChild(sp);
+        });
+        list.appendChild(row);
+      });
+      if(!rows.length){
+        var empty = document.createElement('div');
+        empty.className = 'usage-note';
+        empty.textContent = range === 'all' ? 'Nothing counted yet. Copy a macro and it will show up here.' : 'No copies in the last 30 days.';
+        list.appendChild(empty);
+      }
+      summary.textContent = rows.length
+        ? totalCopies + ' copies across ' + rows.length + ' macros' + (range === 'all' && earliest ? ', counting since ' + dayKey(earliest) : '') + '.'
+        : '';
+      var unused = [];
+      bankOrder.forEach(function(b){
+        if(NO_WRAP_BANKS.indexOf(b) !== -1) return;
+        Object.keys(banks[b]).sort(function(x, y){ return Number(x) - Number(y); }).forEach(function(k){
+          var u = usage[b + ':' + k], m = banks[b][k];
+          if(!(u && u.l === m.label && countFor(u) > 0)) unused.push(b + k + ' ' + m.label);
+        });
+      });
+      unusedNote.textContent = rows.length || Object.keys(usage).length
+        ? 'Not copied ' + (range === 'all' ? 'yet' : 'in this range') + ' (' + unused.length + '): ' + unused.join(', ') + '.'
+        : '';
+    }
+
+    var actions = dlgActions();
+    actions.appendChild(dlgBtn('Clear counts', function(){
+      if(!Object.keys(usage).length){ msg.textContent = 'Nothing to clear.'; return; }
+      if(!askConfirm('Clear all usage counts? This cannot be undone.', 'usage-clear')) return;
+      usage = {};
+      saveJson(USAGE_KEY, usage);
+      msg.textContent = 'Counts cleared.';
+      draw();
+    }));
+    actions.appendChild(dlgBtn('Close', closeDialog));
+    toolsDialog.appendChild(seg);
+    toolsDialog.appendChild(summary);
+    toolsDialog.appendChild(list);
+    toolsDialog.appendChild(unusedNote);
+    toolsDialog.appendChild(msg);
+    toolsDialog.appendChild(actions);
+    draw();
+  }
+  document.getElementById('tool-export').addEventListener('click', openExportDialog);
+  document.getElementById('tool-import').addEventListener('click', openImportDialog);
+  document.getElementById('tool-voice').addEventListener('click', openVoiceDialog);
+  document.getElementById('tool-usage').addEventListener('click', openUsageDialog);
+  document.getElementById('tool-restore').addEventListener('click', function(){
+    if(!confirmDiscardEdit()) return;
+    if(!askConfirm('Restore Bank ' + currentBank + ' (' + bankNames[currentBank] + ') to the built-in macros? Your edits in this bank will be replaced.', 'restore:' + currentBank)) return;
+    var b = currentBank;
+    withUndo('Restored Bank ' + b + ' to the built-in macros.', function(){
+      banks[b] = JSON.parse(JSON.stringify(defaultsByBank[b] || {}));
+      meta.deleted[b] = [];
+      persistData();
+    });
+    refreshAll();
+  });
+
+  /* ================= drag to reorder (edit mode) ================= */
+  var dragFrom = null;
+  function movePad(from, to){
+    if(from === to) return;
+    if(editingPad !== null && editorDirty && !confirmDiscardEdit()) return;
+    var b = currentBank, src = banks[b][from], dst = banks[b][to];
+    if(!src) return;
+    withUndo(dst ? 'Swapped pads ' + from + ' and ' + to + '.' : 'Moved pad ' + from + ' to pad ' + to + '.', function(){
+      var kFrom = refKey(b, from), kTo = refKey(b, to);
+      if(dst){
+        setMacro(b, from, dst);
+        setMacro(b, to, src);
+        pins = pins.map(function(r){ return r === kFrom ? kTo : (r === kTo ? kFrom : r); });
+        saveJson(PINS_KEY, pins);
+        var uFrom = usage[kFrom], uTo = usage[kTo];
+        delete usage[kFrom]; delete usage[kTo];
+        if(uFrom) usage[kTo] = uFrom;
+        if(uTo) usage[kFrom] = uTo;
+        saveJson(USAGE_KEY, usage);
+      } else {
+        setMacro(b, to, src);
+        clearMacro(b, from);
+        remapRef(kFrom, kTo);
+      }
+      persistData();
+    });
+    editingPad = null;
+    editorDirty = false;
+    render();
+    renderBanks();
+    renderPins();
+    resetScreens();
+  }
+
+  syncWrapUi();
+  renderBanks();
+  render();
+  renderPins();
+  hint.textContent = 'Play mode · Bank ' + currentBank + ' (' + bankNames[currentBank] + ') · click a pad to copy its macro';
+  setupMidiPanel();
+  autoConnectMidi();
+})();
+</script>

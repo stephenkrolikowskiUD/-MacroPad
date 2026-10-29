@@ -1,6 +1,6 @@
 # Support Macro Pad — CX Workflow, Refund Calculator & QA Compliance Workbench
 
-**Live Dashboard:** [Support Macro Pad Workbench](https://stephenkrolikowskiud.github.io/MacroPad/)
+**Live Dashboard:** [Support Macro Pad Workbench](https://stephenkrolikowskiud.github.io/-MacroPad/)
 
 **Author:** Stephen Krolikowski ([LinkedIn](https://www.linkedin.com/in/stephenkrolikowski))
 
